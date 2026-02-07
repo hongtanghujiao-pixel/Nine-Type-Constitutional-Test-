@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>功能测试 - 九质云测</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif SC"', 'Songti SC', 'serif'],
+            sans: ['"Noto Sans SC"', 'PingFang SC', 'sans-serif'],
+          },
+          colors: {
+            paper: '#f5f2eb',
+            mist: '#e8eae6',
+            ink: '#2c3e50',
+            indigo: '#4a5568',
+            ochre: '#a67c52',
+            warm: '#c4a77d',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { 
+      font-family: 'Noto Sans SC', sans-serif; 
+      background: linear-gradient(135deg, #f5f2eb 0%, #e8eae6 100%);
+      color: #2c3e50; 
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .font-serif { font-family: 'Noto Serif SC', serif; }
+    .card {
+      background: rgba(245, 242, 235, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(120, 113, 108, 0.2);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      margin: 0.5rem;
+    }
+    .btn-primary {
+      background: #a67c52;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #8b6a45;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(166, 124, 82, 0.3);
+    }
+    .btn-secondary {
+      background: rgba(166, 124, 82, 0.15);
+      color: #a67c52;
+    }
+    .btn-secondary:hover {
+      background: rgba(166, 124, 82, 0.25);
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .status-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: rgb(22, 163, 74);
+    }
+    .status-warning {
+      background: rgba(251, 191, 36, 0.15);
+      color: rgb(217, 119, 6);
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-4xl mx-auto">
+    <!-- 标题 -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center gap-2 mb-4">
+        <span class="w-12 h-12 rounded-full bg-indigo/10 flex items-center justify-center text-indigo font-serif text-xl">测</span>
+        <span class="font-serif font-semibold text-2xl">九质云测</span>
+      </div>
+      <h1 class="font-serif text-3xl mb-2">用户注册系统测试</h1>
+      <p class="text-indigo/80">快速测试所有功能</p>
+    </div>
+
+    <!-- 当前状态 -->
+    <div class="card">
+      <h2 class="font-serif text-xl mb-4">当前登录状态</h2>
+      <div id="loginStatus">
+        <span class="status-badge status-warning">未登录</span>
+      </div>
+      <div id="userInfo" class="mt-4 hidden">
+        <p class="text-sm text-indigo/80 mb-2">用户名：<span id="currentUsername" class="font-medium text-ink"></span></p>
+        <button onclick="logout()" class="btn btn-secondary mt-2">退出登录</button>
+      </div>
+    </div>
+
+    <!-- 功能导航 -->
+    <div class="card">
+      <h2 class="font-serif text-xl mb-4">功能测试</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-white/50 rounded-lg">
+          <h3 class="font-medium text-ink mb-2">📝 用户注册</h3>
+          <p class="text-sm text-indigo/70 mb-3">创建新账号，体验完整注册流程</p>
+          <a href="register.html" class="btn btn-primary">前往注册</a>
+        </div>
+        <div class="p-4 bg-white/50 rounded-lg">
+          <h3 class="font-medium text-ink mb-2">🔐 用户登录</h3>
+          <p class="text-sm text-indigo/70 mb-3">使用已注册账号登录系统</p>
+          <a href="login.html" class="btn btn-primary">前往登录</a>
+        </div>
+        <div class="p-4 bg-white/50 rounded-lg">
+          <h3 class="font-medium text-ink mb-2">👤 个人档案</h3>
+          <p class="text-sm text-indigo/70 mb-3">查看个人信息和测试记录</p>
+          <a href="profile.html" class="btn btn-primary">查看档案</a>
+        </div>
+        <div class="p-4 bg-white/50 rounded-lg">
+          <h3 class="font-medium text-ink mb-2">🏠 返回首页</h3>
+          <p class="text-sm text-indigo/70 mb-3">体验完整的体质测试流程</p>
+          <a href="index.html" class="btn btn-primary">返回首页</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据管理 -->
+    <div class="card">
+      <h2 class="font-serif text-xl mb-4">数据管理</h2>
+      <div class="mb-4">
+        <p class="text-sm text-indigo/80 mb-2">已注册用户数：<span id="userCount" class="font-medium text-ink">0</span></p>
+        <button onclick="viewAllUsers()" class="btn btn-secondary">查看所有用户</button>
+        <button onclick="clearAllData()" class="btn btn-secondary">清除所有数据</button>
+      </div>
+      <div id="userList" class="hidden mt-4 p-4 bg-white/50 rounded-lg max-h-64 overflow-y-auto">
+        <h3 class="font-medium text-ink mb-2">用户列表</h3>
+        <div id="userListContent"></div>
+      </div>
+    </div>
+
+    <!-- 测试指南 -->
+    <div class="card">
+      <h2 class="font-serif text-xl mb-4">测试指南</h2>
+      <ol class="space-y-3 text-sm text-indigo/80">
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-6 h-6 rounded-full bg-ochre/15 text-ochre flex items-center justify-center text-xs">1</span>
+          <span>点击"前往注册"，填写注册信息创建新账号</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-6 h-6 rounded-full bg-ochre/15 text-ochre flex items-center justify-center text-xs">2</span>
+          <span>注册成功后，使用新账号登录系统</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-6 h-6 rounded-full bg-ochre/15 text-ochre flex items-center justify-center text-xs">3</span>
+          <span>登录后查看个人档案，确认信息正确</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-6 h-6 rounded-full bg-ochre/15 text-ochre flex items-center justify-center text-xs">4</span>
+          <span>返回首页，体验完整的体质测试流程</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="flex-shrink-0 w-6 h-6 rounded-full bg-ochre/15 text-ochre flex items-center justify-center text-xs">5</span>
+          <span>测试完成后，在个人档案中查看测试记录</span>
+        </li>
+      </ol>
+    </div>
+
+    <!-- 功能特性 -->
+    <div class="card">
+      <h2 class="font-serif text-xl mb-4">已实现功能</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>用户注册（用户名、密码）</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>实时表单验证</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>重复注册检测</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>用户登录验证</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>登录状态保持</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>个人档案展示</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>测试记录管理</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-green-600">✓</span>
+          <span>用户退出登录</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // 更新登录状态
+    function updateLoginStatus() {
+      const currentUser = window.JiuzhiAuth.getCurrentUser();
+      const loginStatus = document.getElementById('loginStatus');
+      const userInfo = document.getElementById('userInfo');
+      
+      if (currentUser) {
+        loginStatus.innerHTML = '<span class="status-badge status-success">已登录</span>';
+        userInfo.classList.remove('hidden');
+        document.getElementById('currentUsername').textContent = currentUser.username;
+      } else {
+        loginStatus.innerHTML = '<span class="status-badge status-warning">未登录</span>';
+        userInfo.classList.add('hidden');
+      }
+      
+      // 更新用户数量
+      const users = JSON.parse(localStorage.getItem('jiuzhi_users') || '[]');
+      document.getElementById('userCount').textContent = users.length;
+    }
+
+    // 退出登录
+    function logout() {
+      if (confirm('确定要退出登录吗？')) {
+        window.JiuzhiAuth.logout();
+        updateLoginStatus();
+        alert('已退出登录');
+      }
+    }
+
+    // 查看所有用户
+    function viewAllUsers() {
+      const users = JSON.parse(localStorage.getItem('jiuzhi_users') || '[]');
+      const userList = document.getElementById('userList');
+      const userListContent = document.getElementById('userListContent');
+      
+      if (users.length === 0) {
+        alert('暂无注册用户');
+        return;
+      }
+      
+      const html = users.map((user, index) => `
+        <div class="p-3 mb-2 bg-white rounded border border-stone-200">
+          <p class="font-medium text-ink">${index + 1}. ${user.username}</p>
+          <p class="text-xs text-indigo/70">用户ID：${user.id}</p>
+          <p class="text-xs text-indigo/70">注册时间：${new Date(user.createdAt).toLocaleString('zh-CN')}</p>
+        </div>
+      `).join('');
+      
+      userListContent.innerHTML = html;
+      userList.classList.remove('hidden');
+    }
+
+    // 清除所有数据
+    function clearAllData() {
+      if (confirm('确定要清除所有用户数据吗？此操作不可恢复！')) {
+        localStorage.removeItem('jiuzhi_users');
+        localStorage.removeItem('jiuzhi_current_user');
+        localStorage.removeItem('jiuzhi_remember');
+        updateLoginStatus();
+        document.getElementById('userList').classList.add('hidden');
+        alert('所有数据已清除');
+      }
+    }
+
+    // 页面加载时更新状态
+    updateLoginStatus();
+  </script>
+</body>
+</html>
+

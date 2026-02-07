@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用户登录 · 九质云测</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif SC"', 'Songti SC', 'serif'],
+            sans: ['"Noto Sans SC"', 'PingFang SC', 'sans-serif'],
+          },
+          colors: {
+            paper: '#f5f2eb',
+            mist: '#e8eae6',
+            ink: '#2c3e50',
+            indigo: '#4a5568',
+            ochre: '#a67c52',
+            warm: '#c4a77d',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --paper: #f5f2eb;
+      --mist: #e8eae6;
+      --ink: #2c3e50;
+      --indigo: #4a5568;
+      --ochre: #a67c52;
+      --warm: #c4a77d;
+    }
+    body { 
+      font-family: 'Noto Sans SC', sans-serif; 
+      background: linear-gradient(135deg, #f5f2eb 0%, #e8eae6 100%);
+      color: var(--ink); 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .font-serif { font-family: 'Noto Serif SC', serif; }
+    .login-container {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .input-field {
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: var(--ochre);
+      box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+    }
+    .btn-primary {
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(166, 124, 82, 0.3);
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="login-container w-full max-w-md px-4">
+    <!-- Logo 和标题 -->
+    <div class="text-center mb-8">
+      <a href="index.html" class="inline-flex items-center gap-2 mb-4">
+        <span class="w-12 h-12 rounded-full bg-indigo/10 flex items-center justify-center text-indigo font-serif text-xl">测</span>
+        <span class="font-serif font-semibold text-ink text-xl">九质云测</span>
+      </a>
+      <h1 class="font-serif text-3xl text-ink mb-2">欢迎回来</h1>
+      <p class="text-indigo/80 text-sm">登录您的账号继续体质测试</p>
+    </div>
+
+    <!-- 登录表单 -->
+    <div class="bg-paper/80 backdrop-blur rounded-2xl shadow-xl border border-stone-200/60 p-8">
+      <form id="loginForm" class="space-y-5">
+        <!-- 用户名 -->
+        <div>
+          <label for="loginId" class="block text-sm font-medium text-ink mb-2">用户名</label>
+          <input 
+            type="text" 
+            id="loginId" 
+            name="loginId"
+            class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
+            placeholder="请输入用户名"
+            required
+          />
+        </div>
+
+        <!-- 密码 -->
+        <div>
+          <label for="loginPassword" class="block text-sm font-medium text-ink mb-2">密码</label>
+          <input 
+            type="password" 
+            id="loginPassword" 
+            name="loginPassword"
+            class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
+            placeholder="请输入密码"
+            required
+          />
+        </div>
+
+        <!-- 错误提示 -->
+        <p class="text-xs text-red-500 mt-1 hidden" id="loginError"></p>
+
+        <!-- 记住我和忘记密码 -->
+        <div class="flex items-center justify-between text-sm">
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" name="remember" class="mr-2" />
+            <span class="text-indigo/80">记住我</span>
+          </label>
+          <a href="#" class="text-ochre hover:underline">忘记密码？</a>
+        </div>
+
+        <!-- 提交按钮 -->
+        <button 
+          type="submit" 
+          class="btn-primary w-full py-3 rounded-xl bg-ochre text-white font-medium shadow-lg"
+        >
+          登录
+        </button>
+
+        <!-- 注册链接 -->
+        <div class="text-center text-sm text-indigo/80">
+          还没有账号？<a href="register.html" class="text-ochre hover:underline ml-1">立即注册</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- 其他登录方式 -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-indigo/60 mb-4">或使用以下方式登录</p>
+      <div class="flex justify-center gap-4">
+        <button class="w-12 h-12 rounded-full bg-white/80 border border-stone-200 flex items-center justify-center hover:bg-white transition">
+          <span class="text-xl">微</span>
+        </button>
+        <button class="w-12 h-12 rounded-full bg-white/80 border border-stone-200 flex items-center justify-center hover:bg-white transition">
+          <span class="text-xl">QQ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>
+

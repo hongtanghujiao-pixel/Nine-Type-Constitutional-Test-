@@ -79,12 +79,16 @@
       <nav class="flex items-center gap-6 text-sm text-indigo">
         <a href="#home" class="hover:text-ochre transition">首页</a>
         <a href="#test" class="hover:text-ochre transition">体质测试</a>
-        <a href="#products" class="hover:text-ochre transition">农产品商城</a>
-        <a href="#" class="hover:text-ochre transition">我的档案</a>
+        <a href="profile.html" class="hover:text-ochre transition">我的档案</a>
+        <!-- 访问量统计 -->
+        <span class="flex items-center gap-1.5 text-xs text-stone-500">
+          <span>访客量:</span>
+          <span class="visit-count font-medium text-ochre">0</span>
+        </span>
       </nav>
       <div class="flex items-center gap-3">
-        <a href="#" class="text-sm text-indigo hover:text-ochre">登录</a>
-        <a href="#" class="text-sm px-4 py-2 rounded-full bg-ochre/15 text-ochre hover:bg-ochre/25 transition">注册</a>
+        <a href="login.html" class="text-sm text-indigo hover:text-ochre">登录</a>
+        <a href="register.html" class="text-sm px-4 py-2 rounded-full bg-ochre/15 text-ochre hover:bg-ochre/25 transition">注册</a>
       </div>
     </div>
   </header>
@@ -104,21 +108,65 @@
                 </div>
                 <div class="w-48 h-48 rounded-full bg-warm/20 flex items-center justify-center text-6xl">☯</div>
               </div>
+              
               <div class="hero-slide flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12" data-slide="1">
                 <div class="flex-1 text-center md:text-left">
-                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">总是手脚冰凉？容易疲劳？</p>
-                  <p class="text-indigo/90 mb-6">找到原因，才能精准调理。</p>
-                  <a href="#test" class="inline-block px-6 py-3 rounded-full bg-ochre text-white font-medium hover:bg-ochre/90 transition shadow-lg">立即开始测试</a>
+                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">九种体质，因人制宜</p>
+                  <p class="text-indigo/90 mb-4">基于《中医体质分类与判定》标准，将人体体质分为平和质、气虚质、阳虚质、阴虚质、痰湿质、湿热质、血瘀质、气郁质、特禀质九种类型。</p>
+                  <p class="text-sm text-indigo/70">每种体质都有其独特的生理特征和调养方法。</p>
                 </div>
-                <div class="w-48 h-48 rounded-full bg-accent-yangxu/20 flex items-center justify-center text-5xl">🌿</div>
+                <div class="w-48 h-48 rounded-full bg-accent-pinghe/20 flex items-center justify-center">
+                  <div class="text-center">
+                    <div class="text-4xl mb-2">🌿</div>
+                    <div class="text-sm text-ink font-medium">九种体质</div>
+                  </div>
+                </div>
               </div>
+              
               <div class="hero-slide flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12" data-slide="2">
                 <div class="flex-1 text-center md:text-left">
-                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">一方水土养一方人</p>
-                  <p class="text-indigo/90 mb-6">地道农物也是良药。</p>
+                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">科学测评，精准分析</p>
+                  <p class="text-indigo/90 mb-4">通过36道标准化问题，采用转化分计算方法，科学评估您的体质类型。</p>
+                  <p class="text-sm text-indigo/70">转化分≥60为主要体质，30-39为兼夹倾向。</p>
+                </div>
+                <div class="w-48 h-48 rounded-full bg-accent-qixu/20 flex items-center justify-center">
+                  <div class="text-center">
+                    <div class="text-4xl mb-2">📊</div>
+                    <div class="text-sm text-ink font-medium">科学测评</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="hero-slide flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12" data-slide="3">
+                <div class="flex-1 text-center md:text-left">
+                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">食疗养生，药食同源</p>
+                  <p class="text-indigo/90 mb-4">根据您的体质类型，推荐适合的食材和食疗方案。特别推荐甘肃道地药材和特色农产品。</p>
+                  <p class="text-sm text-indigo/70">一方水土养一方人，地道农物也是良药。</p>
+                </div>
+                <div class="w-48 h-48 rounded-full bg-accent-yangxu/20 flex items-center justify-center text-5xl">🫚</div>
+              </div>
+              
+              <div class="hero-slide flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12" data-slide="4">
+                <div class="flex-1 text-center md:text-left">
+                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">个性化调养方案</p>
+                  <p class="text-indigo/90 mb-4">针对不同体质，提供个性化的饮食建议、生活起居指导和养生方法。</p>
+                  <p class="text-sm text-indigo/70">未病先防，既病防变，愈后防复。</p>
+                </div>
+                <div class="w-48 h-48 rounded-full bg-accent-yinxu/20 flex items-center justify-center">
+                  <div class="text-center">
+                    <div class="text-4xl mb-2">💡</div>
+                    <div class="text-sm text-ink font-medium">个性调养</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="hero-slide flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12" data-slide="5">
+                <div class="flex-1 text-center md:text-left">
+                  <p class="font-serif text-2xl md:text-3xl text-ink mb-4">总是手脚冰凉？容易疲劳？</p>
+                  <p class="text-indigo/90 mb-6">找到原因，才能精准调理。立即开始测试，了解您的体质类型。</p>
                   <a href="#test" class="inline-block px-6 py-3 rounded-full bg-ochre text-white font-medium hover:bg-ochre/90 transition shadow-lg">立即开始测试</a>
                 </div>
-                <div class="w-48 h-48 rounded-full bg-accent-pinghe/20 flex items-center justify-center text-5xl">🫚</div>
+                <div class="w-48 h-48 rounded-full bg-accent-tanshi/20 flex items-center justify-center text-5xl">🌿</div>
               </div>
             </div>
           </div>
@@ -126,6 +174,9 @@
             <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-ochre/60 hover:bg-ochre" data-index="0" aria-label="轮播第1页"></button>
             <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-ochre" data-index="1" aria-label="轮播第2页"></button>
             <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-ochre" data-index="2" aria-label="轮播第3页"></button>
+            <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-ochre" data-index="3" aria-label="轮播第4页"></button>
+            <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-ochre" data-index="4" aria-label="轮播第5页"></button>
+            <button type="button" class="carousel-dot w-2.5 h-2.5 rounded-full bg-stone-300 hover:bg-ochre" data-index="5" aria-label="轮播第6页"></button>
           </div>
         </div>
       </div>
@@ -244,6 +295,8 @@
   </main>
 
   <script src="data.js"></script>
+  <script src="visit-counter.js"></script>
+  <script src="auth.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>用户注册 · 九质云测</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Noto Serif SC"', 'Songti SC', 'serif'],
+            sans: ['"Noto Sans SC"', 'PingFang SC', 'sans-serif'],
+          },
+          colors: {
+            paper: '#f5f2eb',
+            mist: '#e8eae6',
+            ink: '#2c3e50',
+            indigo: '#4a5568',
+            ochre: '#a67c52',
+            warm: '#c4a77d',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --paper: #f5f2eb;
+      --mist: #e8eae6;
+      --ink: #2c3e50;
+      --indigo: #4a5568;
+      --ochre: #a67c52;
+      --warm: #c4a77d;
+    }
+    body { 
+      font-family: 'Noto Sans SC', sans-serif; 
+      background: linear-gradient(135deg, #f5f2eb 0%, #e8eae6 100%);
+      color: var(--ink); 
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .font-serif { font-family: 'Noto Serif SC', serif; }
+    .register-container {
+      animation: fadeInUp 0.6s ease-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .input-field {
+      transition: all 0.3s ease;
+    }
+    .input-field:focus {
+      border-color: var(--ochre);
+      box-shadow: 0 0 0 3px rgba(166, 124, 82, 0.1);
+    }
+    .btn-primary {
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(166, 124, 82, 0.3);
+    }
+    .error-message {
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    .success-icon {
+      animation: scaleIn 0.5s ease;
+    }
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="register-container w-full max-w-md px-4">
+    <!-- Logo 和标题 -->
+    <div class="text-center mb-8">
+      <a href="index.html" class="inline-flex items-center gap-2 mb-4">
+        <span class="w-12 h-12 rounded-full bg-indigo/10 flex items-center justify-center text-indigo font-serif text-xl">测</span>
+        <span class="font-serif font-semibold text-ink text-xl">九质云测</span>
+      </a>
+      <h1 class="font-serif text-3xl text-ink mb-2">欢迎注册</h1>
+      <p class="text-indigo/80 text-sm">开启您的健康养生之旅</p>
+    </div>
+
+    <!-- 注册表单 -->
+    <div class="bg-paper/80 backdrop-blur rounded-2xl shadow-xl border border-stone-200/60 p-8">
+      <form id="registerForm" class="space-y-5">
+        <!-- 用户名 -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-ink mb-2">用户名</label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username"
+            class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
+            placeholder="请输入用户名（3-20个字符）"
+            required
+          />
+          <p class="text-xs text-red-500 mt-1 hidden" id="usernameError"></p>
+        </div>
+
+        <!-- 密码 -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-ink mb-2">密码</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password"
+            class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
+            placeholder="请输入密码（至少6个字符）"
+            required
+          />
+          <p class="text-xs text-red-500 mt-1 hidden" id="passwordError"></p>
+        </div>
+
+        <!-- 确认密码 -->
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-ink mb-2">确认密码</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            name="confirmPassword"
+            class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
+            placeholder="请再次输入密码"
+            required
+          />
+          <p class="text-xs text-red-500 mt-1 hidden" id="confirmPasswordError"></p>
+        </div>
+
+        <!-- 提交按钮 -->
+        <button 
+          type="submit" 
+          class="btn-primary w-full py-3 rounded-xl bg-ochre text-white font-medium shadow-lg"
+        >
+          立即注册
+        </button>
+
+        <!-- 登录链接 -->
+        <div class="text-center text-sm text-indigo/80">
+          已有账号？<a href="login.html" class="text-ochre hover:underline ml-1">立即登录</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- 成功提示（隐藏） -->
+    <div id="successModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-paper rounded-2xl p-8 max-w-sm mx-4 text-center shadow-2xl">
+        <div class="success-icon w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <h3 class="font-serif text-2xl text-ink mb-2">注册成功！</h3>
+        <p class="text-indigo/80 mb-6">正在为您跳转到个人档案...</p>
+        <div class="flex gap-3 justify-center">
+          <button 
+            onclick="window.location.href='profile.html'" 
+            class="px-6 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition"
+          >
+            立即查看
+          </button>
+          <button 
+            onclick="window.location.href='index.html'" 
+            class="px-6 py-2 rounded-full border-2 border-stone-300 text-indigo hover:bg-mist transition"
+          >
+            返回首页
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>
+

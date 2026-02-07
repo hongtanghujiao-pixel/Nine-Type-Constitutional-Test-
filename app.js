@@ -295,6 +295,28 @@
       },
     });
 
+    // 保存测试结果到用户数据
+    if (window.JiuzhiAuth && window.JiuzhiAuth.isLoggedIn()) {
+      const testResult = {
+        timestamp: new Date().toISOString(),
+        constitution: main.name,
+        constitutionId: mainId,
+        description: main.desc,
+        scores: scores,
+        secondaryConstitutions: secondaryIds.map(id => DATA[id].name),
+        dietRecommend: main.dietRecommend,
+        features: main.features,
+        cause: main.cause,
+        risks: main.risks,
+        principle: main.principle,
+        foods: main.foods,
+        products: main.products,
+        recipe: main.recipe
+      };
+      
+      window.JiuzhiAuth.saveTestResult(testResult);
+    }
+
     showSection('result');
     renderProducts(mainId);
     document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
