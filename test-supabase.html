@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase 连接测试</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-box {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+    .info { background: #d1ecf1; color: #0c5460; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #0056b3; }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Supabase 连接诊断工具</h1>
+  
+  <div class="test-box">
+    <h2>1. 检查 Supabase 库加载</h2>
+    <div id="lib-status"></div>
+  </div>
+
+  <div class="test-box">
+    <h2>2. 检查客户端初始化</h2>
+    <div id="client-status"></div>
+  </div>
+
+  <div class="test-box">
+    <h2>3. 测试注册功能</h2>
+    <input type="email" id="test-email" placeholder="测试邮箱">
+    <input type="password" id="test-password" placeholder="测试密码（至少6位）">
+    <button onclick="testSignUp()">测试注册</button>
+    <div id="signup-status"></div>
+  </div>
+
+  <div class="test-box">
+    <h2>4. 测试登录功能</h2>
+    <button onclick="testSignIn()">测试登录（使用上面的邮箱密码）</button>
+    <div id="signin-status"></div>
+  </div>
+
+  <div class="test-box">
+    <h2>5. 检查当前用户</h2>
+    <button onclick="checkCurrentUser()">检查用户状态</button>
+    <div id="user-status"></div>
+  </div>
+
+  <div class="test-box">
+    <h2>6. 配置信息</h2>
+    <pre id="config-info"></pre>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 配置信息
+    const supabaseUrl = 'https://yospqbbeykizesujlhiq.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlvc3BxYmJleWtpemVzdWpsaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTY1MTcsImV4cCI6MjA4NjU3MjUxN30.gE1rm3hpyV-_NVIPCch0hYG29OyxBGY2jzshVizPAZc'
+
+    let supabaseClient = null
+
+    // 1. 检查库加载
+    function checkLibrary() {
+      const status = document.getElementById('lib-status')
+      if (typeof supabase !== 'undefined') {
+        status.innerHTML = '<div class="status success">✅ Supabase 库已成功加载</div>'
+        return true
+      } else {
+        status.innerHTML = '<div class="status error">❌ Supabase 库未加载！请检查网络连接</div>'
+        return false
+      }
+    }
+
+    // 2. 检查客户端初始化
+    function checkClient() {
+      const status = document.getElementById('client-status')
+      try {
+        const { createClient } = supabase
+        supabaseClient = createClient(supabaseUrl, supabaseKey)
+        status.innerHTML = '<div class="status success">✅ Supabase 客户端初始化成功</div>'
+        return true
+      } catch (error) {
+        status.innerHTML = `<div class="status error">❌ 客户端初始化失败: ${error.message}</div>`
+        console.error('初始化错误:', error)
+        return false
+      }
+    }
+
+    // 3. 测试注册
+    async function testSignUp() {
+      const email = document.getElementById('test-email').value
+      const password = document.getElementById('test-password').value
+      const status = document.getElementById('signup-status')
+
+      if (!email || !password) {
+        status.innerHTML = '<div class="status error">请填写邮箱和密码</div>'
+        return
+      }
+
+      if (password.length < 6) {
+        status.innerHTML = '<div class="status error">密码至少需要6个字符</div>'
+        return
+      }
+
+      status.innerHTML = '<div class="status info">⏳ 注册中...</div>'
+
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin
+          }
+        })
+
+        if (error) {
+          status.innerHTML = `<div class="status error">❌ 注册失败: ${error.message}</div><pre>${JSON.stringify(error, null, 2)}</pre>`
+        } else {
+          status.innerHTML = `<div class="status success">✅ 注册成功！请查收验证邮件</div><pre>${JSON.stringify(data, null, 2)}</pre>`
+        }
+      } catch (err) {
+        status.innerHTML = `<div class="status error">❌ 注册异常: ${err.message}</div>`
+        console.error('注册异常:', err)
+      }
+    }
+
+    // 4. 测试登录
+    async function testSignIn() {
+      const email = document.getElementById('test-email').value
+      const password = document.getElementById('test-password').value
+      const status = document.getElementById('signin-status')
+
+      if (!email || !password) {
+        status.innerHTML = '<div class="status error">请填写邮箱和密码</div>'
+        return
+      }
+
+      status.innerHTML = '<div class="status info">⏳ 登录中...</div>'
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        })
+
+        if (error) {
+          status.innerHTML = `<div class="status error">❌ 登录失败: ${error.message}</div><pre>${JSON.stringify(error, null, 2)}</pre>`
+        } else {
+          status.innerHTML = `<div class="status success">✅ 登录成功！</div><pre>${JSON.stringify(data, null, 2)}</pre>`
+        }
+      } catch (err) {
+        status.innerHTML = `<div class="status error">❌ 登录异常: ${err.message}</div>`
+        console.error('登录异常:', err)
+      }
+    }
+
+    // 5. 检查当前用户
+    async function checkCurrentUser() {
+      const status = document.getElementById('user-status')
+      status.innerHTML = '<div class="status info">⏳ 检查中...</div>'
+
+      try {
+        const { data: { user }, error } = await supabaseClient.auth.getUser()
+
+        if (error) {
+          status.innerHTML = `<div class="status error">❌ 获取用户失败: ${error.message}</div>`
+        } else if (user) {
+          status.innerHTML = `<div class="status success">✅ 已登录</div><pre>${JSON.stringify(user, null, 2)}</pre>`
+        } else {
+          status.innerHTML = '<div class="status info">ℹ️ 未登录</div>'
+        }
+      } catch (err) {
+        status.innerHTML = `<div class="status error">❌ 检查异常: ${err.message}</div>`
+        console.error('检查异常:', err)
+      }
+    }
+
+    // 显示配置信息
+    function showConfig() {
+      const config = {
+        supabaseUrl,
+        supabaseKeyPrefix: supabaseKey.substring(0, 50) + '...',
+        supabaseKeyLength: supabaseKey.length,
+        currentOrigin: window.location.origin
+      }
+      document.getElementById('config-info').textContent = JSON.stringify(config, null, 2)
+    }
+
+    // 页面加载时执行检查
+    window.addEventListener('load', () => {
+      checkLibrary()
+      checkClient()
+      showConfig()
+    })
+  </script>
+</body>
+</html>
+

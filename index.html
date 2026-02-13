@@ -67,6 +67,7 @@
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(44,62,80,0.1); }
   html { scroll-behavior: smooth; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="antialiased">
   <!-- A. 顶部导航 -->
@@ -79,11 +80,39 @@
       <nav class="flex items-center gap-6 text-sm text-indigo">
         <a href="#home" class="hover:text-ochre transition">首页</a>
         <a href="#test" class="hover:text-ochre transition">体质测试</a>
-        <a href="profile.html" class="hover:text-ochre transition">我的档案</a>
       </nav>
-      <div class="flex items-center gap-3">
-        <a href="login.html" class="text-sm text-indigo hover:text-ochre">登录</a>
-        <a href="register.html" class="text-sm px-4 py-2 rounded-full bg-ochre/15 text-ochre hover:bg-ochre/25 transition">注册</a>
+      
+      <!-- 购物车和登录区域 -->
+      <div class="flex items-center gap-4">
+        <!-- 购物车图标 -->
+        <button onclick="showCartModal()" class="relative text-indigo hover:text-ochre transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          <span id="cart-count" class="hidden absolute -top-2 -right-2 w-5 h-5 bg-ochre text-white text-xs rounded-full flex items-center justify-center">0</span>
+        </button>
+        
+        <!-- Supabase 登录区域 -->
+        <div class="flex items-center gap-3">
+          <!-- 未登录状态 -->
+          <div id="header-login-form" class="flex items-center gap-2">
+            <input type="email" id="header-email" placeholder="邮箱" 
+                   class="w-32 px-2 py-1 text-xs rounded border border-stone-300 bg-white/50 focus:outline-none focus:border-ochre transition-colors">
+            <input type="password" id="header-password" placeholder="密码" 
+                   class="w-24 px-2 py-1 text-xs rounded border border-stone-300 bg-white/50 focus:outline-none focus:border-ochre transition-colors">
+            <button onclick="handleHeaderSignIn()" class="text-xs px-3 py-1 rounded-full bg-ochre text-white hover:bg-ochre/90 transition">登录</button>
+            <button onclick="handleHeaderSignUp()" class="text-xs px-3 py-1 rounded-full border border-ochre text-ochre hover:bg-ochre/10 transition">注册</button>
+          </div>
+          
+          <!-- 已登录状态 -->
+          <div id="header-user-panel" class="hidden flex items-center gap-3">
+            <span id="header-user-email" class="text-xs text-ochre font-medium"></span>
+            <button onclick="showHistoryModal()" class="text-xs text-indigo hover:text-ochre transition">历史记录</button>
+            <button onclick="handleSignOut()" class="text-xs text-indigo hover:text-ochre transition">退出</button>
+          </div>
+          
+          <span id="header-auth-msg" class="text-xs text-red-600 absolute top-full right-4 mt-1"></span>
+        </div>
       </div>
     </div>
   </header>
@@ -221,6 +250,11 @@
               <canvas id="radarChart" width="320" height="280"></canvas>
             </div>
           </div>
+          <!-- 调理程度建议 -->
+          <div id="adjustmentRecommendation" class="mb-8 hidden">
+            <!-- 由 JS 动态填充 -->
+          </div>
+          
           <div class="bg-mist/60 rounded-2xl p-6 md:p-8 border border-stone-200/60 space-y-6">
             <div>
               <h3 class="font-serif text-lg text-ink mb-2">体质画像</h3>
@@ -250,7 +284,12 @@
       </div>
     </section>
 
-    <!-- D. 农产品智能推荐 -->
+    <!-- D. 茶饮推荐区域（轻度调理） -->
+    <section id="teaRecommendation" class="section py-16 bg-paper hidden">
+      <!-- 由 JS 动态填充 -->
+    </section>
+
+    <!-- E. 农产品智能推荐 -->
     <section id="products" class="section py-16 bg-mist/40">
       <div class="max-w-6xl mx-auto px-4">
         <h2 id="productsTitle" class="font-serif text-2xl md:text-3xl text-ink text-center mb-4">您的专属食疗方案</h2>
@@ -271,7 +310,7 @@
       </div>
     </section>
 
-    <!-- E. 页脚 -->
+    <!-- F. 页脚 -->
     <footer class="border-t border-stone-200/80 bg-paper py-12">
       <div class="max-w-6xl mx-auto px-4">
         <p class="text-xs text-stone-500 text-center max-w-xl mx-auto mb-6">
@@ -291,6 +330,7 @@
 
   <script src="data.js"></script>
   <script src="auth.js"></script>
+  <script src="cart.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
