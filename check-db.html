@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据库检查</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    .error {
+      color: #d32f2f;
+      background: #ffebee;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      color: #388e3c;
+      background: #e8f5e9;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Supabase 数据库检查工具</h1>
+  
+  <div class="section">
+    <h2>1. 连接状态</h2>
+    <button onclick="checkConnection()">检查连接</button>
+    <div id="connectionResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>2. 用户状态</h2>
+    <button onclick="checkUser()">检查当前用户</button>
+    <div id="userResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>3. 数据库表检查</h2>
+    <button onclick="checkTable()">检查 user_records 表</button>
+    <button onclick="createTable()">创建表（SQL）</button>
+    <div id="tableResult"></div>
+  </div>
+
+  <div class="section">
+    <h2>4. 测试数据操作</h2>
+    <button onclick="testInsert()">测试插入数据</button>
+    <button onclick="testQuery()">测试查询数据</button>
+    <div id="dataResult"></div>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://yospqbbeykizesujlhiq.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlvc3BxYmJleWtpemVzdWpsaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTY1MTcsImV4cCI6MjA4NjU3MjUxN30.gE1rm3hpyV-_NVIPCch0hYG29OyxBGY2jzshVizPAZc'
+    
+    const { createClient } = supabase
+    const supabaseClient = createClient(supabaseUrl, supabaseKey)
+
+    async function checkConnection() {
+      const result = document.getElementById('connectionResult')
+      result.innerHTML = '<p>检查中...</p>'
+      
+      try {
+        const { data, error } = await supabaseClient.auth.getSession()
+        if (error) throw error
+        
+        result.innerHTML = `
+          <div class="success">
+            ✅ Supabase 连接成功！
+            <pre>${JSON.stringify({ url: supabaseUrl, connected: true }, null, 2)}</pre>
+          </div>
+        `
+      } catch (err) {
+        result.innerHTML = `
+          <div class="error">
+            ❌ 连接失败: ${err.message}
+            <pre>${JSON.stringify(err, null, 2)}</pre>
+          </div>
+        `
+      }
+    }
+
+    async function checkUser() {
+      const result = document.getElementById('userResult')
+      result.innerHTML = '<p>检查中...</p>'
+      
+      try {
+        const { data: { user }, error } = await supabaseClient.auth.getUser()
+        
+        if (error) throw error
+        
+        if (user) {
+          result.innerHTML = `
+            <div class="success">
+              ✅ 已登录
+              <pre>${JSON.stringify(user, null, 2)}</pre>
+            </div>
+          `
+        } else {
+          result.innerHTML = `
+            <div class="error">
+              ⚠️ 未登录，请先在主页登录
+            </div>
+          `
+        }
+      } catch (err) {
+        result.innerHTML = `
+          <div class="error">
+            ❌ 检查失败: ${err.message}
+          </div>
+        `
+      }
+    }
+
+    async function checkTable() {
+      const result = document.getElementById('tableResult')
+      result.innerHTML = '<p>检查中...</p>'
+      
+      try {
+        // 尝试查询表
+        const { data, error, count } = await supabaseClient
+          .from('user_records')
+          .select('*', { count: 'exact', head: true })
+        
+        if (error) {
+          if (error.code === '42P01') {
+            result.innerHTML = `
+              <div class="error">
+                ❌ 表 'user_records' 不存在！
+                <p>请点击"创建表（SQL）"按钮查看建表语句，然后在 Supabase Dashboard 中执行。</p>
+              </div>
+            `
+          } else {
+            throw error
+          }
+        } else {
+          result.innerHTML = `
+            <div class="success">
+              ✅ 表 'user_records' 存在！
+              <p>当前记录数: ${count || 0}</p>
+            </div>
+          `
+        }
+      } catch (err) {
+        result.innerHTML = `
+          <div class="error">
+            ❌ 检查失败: ${err.message}
+            <pre>${JSON.stringify(err, null, 2)}</pre>
+          </div>
+        `
+      }
+    }
+
+    function createTable() {
+      const result = document.getElementById('tableResult')
+      result.innerHTML = `
+        <div class="success">
+          <h3>📋 请在 Supabase Dashboard 执行以下 SQL：</h3>
+          <p>1. 打开 <a href="https://supabase.com/dashboard/project/yospqbbeykizesujlhiq/editor" target="_blank">Supabase SQL Editor</a></p>
+          <p>2. 复制下面的 SQL 并执行：</p>
+          <pre style="background: #263238; color: #aed581; padding: 15px; border-radius: 4px; font-size: 12px;">
+-- 创建用户测试记录表
+CREATE TABLE IF NOT EXISTS user_records (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  main_type TEXT NOT NULL,
+  constitution_id TEXT NOT NULL,
+  scores JSONB,
+  adjustment_level TEXT,
+  details JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 创建索引
+CREATE INDEX IF NOT EXISTS idx_user_records_user_id ON user_records(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_records_created_at ON user_records(created_at DESC);
+
+-- 启用 RLS（行级安全）
+ALTER TABLE user_records ENABLE ROW LEVEL SECURITY;
+
+-- 创建 RLS 策略：用户只能查看自己的记录
+CREATE POLICY "Users can view own records"
+  ON user_records FOR SELECT
+  USING (auth.uid() = user_id);
+
+-- 创建 RLS 策略：用户只能插入自己的记录
+CREATE POLICY "Users can insert own records"
+  ON user_records FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- 创建 RLS 策略：用户只能删除自己的记录
+CREATE POLICY "Users can delete own records"
+  ON user_records FOR DELETE
+  USING (auth.uid() = user_id);
+          </pre>
+          <p>3. 执行成功后，点击"检查 user_records 表"按钮验证</p>
+        </div>
+      `
+    }
+
+    async function testInsert() {
+      const result = document.getElementById('dataResult')
+      result.innerHTML = '<p>测试中...</p>'
+      
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        
+        if (!user) {
+          result.innerHTML = `
+            <div class="error">
+              ⚠️ 请先登录才能测试插入数据
+            </div>
+          `
+          return
+        }
+
+        const testData = {
+          user_id: user.id,
+          main_type: '测试体质',
+          constitution_id: 'test',
+          scores: { test: 100 },
+          adjustment_level: 'mild',
+          details: {
+            description: '这是一条测试记录',
+            timestamp: new Date().toISOString()
+          }
+        }
+
+        const { data, error } = await supabaseClient
+          .from('user_records')
+          .insert(testData)
+          .select()
+
+        if (error) throw error
+
+        result.innerHTML = `
+          <div class="success">
+            ✅ 插入成功！
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          </div>
+        `
+      } catch (err) {
+        result.innerHTML = `
+          <div class="error">
+            ❌ 插入失败: ${err.message}
+            <pre>${JSON.stringify(err, null, 2)}</pre>
+          </div>
+        `
+      }
+    }
+
+    async function testQuery() {
+      const result = document.getElementById('dataResult')
+      result.innerHTML = '<p>查询中...</p>'
+      
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser()
+        
+        if (!user) {
+          result.innerHTML = `
+            <div class="error">
+              ⚠️ 请先登录才能查询数据
+            </div>
+          `
+          return
+        }
+
+        const { data, error } = await supabaseClient
+          .from('user_records')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+
+        if (error) throw error
+
+        result.innerHTML = `
+          <div class="success">
+            ✅ 查询成功！找到 ${data.length} 条记录
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          </div>
+        `
+      } catch (err) {
+        result.innerHTML = `
+          <div class="error">
+            ❌ 查询失败: ${err.message}
+            <pre>${JSON.stringify(err, null, 2)}</pre>
+          </div>
+        `
+      }
+    }
+
+    // 页面加载时自动检查连接
+    window.addEventListener('load', () => {
+      checkConnection()
+    })
+  </script>
+</body>
+</html>
+
