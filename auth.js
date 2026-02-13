@@ -189,7 +189,7 @@ window.showHistoryModal = async function() {
               <p class="text-sm text-indigo/50">完成体质测试后，记录会自动保存在这里</p>
             </div>` :
             `<div class="space-y-4">
-              ${data.map(record => {
+              ${data.map((record, index) => {
                 const date = new Date(record.created_at).toLocaleString('zh-CN', {
                   year: 'numeric',
                   month: '2-digit',
@@ -206,7 +206,7 @@ window.showHistoryModal = async function() {
                 }[record.adjustment_level] || '' : ''
                 
                 return `
-                  <div class="p-5 bg-mist/60 rounded-xl border border-stone-200 hover:shadow-md transition">
+                  <div class="p-5 bg-mist/60 rounded-xl border border-stone-200 hover:shadow-lg hover:border-ochre/40 transition cursor-pointer record-item" data-record-index="${index}">
                     <div class="flex justify-between items-start mb-3">
                       <div class="flex items-center gap-3">
                         <h4 class="font-serif text-xl text-ochre">${record.main_type}</h4>
@@ -224,6 +224,9 @@ window.showHistoryModal = async function() {
                           `<span class="text-xs px-2 py-1 rounded bg-stone-200/60 text-stone-700">${key}: ${value}分</span>`
                         ).join('')}
                       </div>` : ''}
+                    <div class="mt-3 text-right">
+                      <span class="text-xs text-ochre hover:underline">点击查看详情 →</span>
+                    </div>
                   </div>
                 `
               }).join('')}
@@ -237,6 +240,226 @@ window.showHistoryModal = async function() {
     `
     
     document.body.appendChild(modal)
+    
+    // 绑定记录点击事件
+    modal.querySelectorAll('.record-item').forEach((item, index) => {
+      item.addEventListener('click', () => {
+        modal.remove()
+        showRecordDetail(data[index])
+      })
+    })
+    
+    // 绑定关闭事件
+    modal.querySelectorAll('.close-modal').forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.remove()
+      })
+    })
+    
+    // 点击背景关闭
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove()
+      }
+    })
+}
+
+// 显示记录详情
+window.showRecordDetail = function(record) {
+    const date = new Date(record.created_at).toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    })
+    
+    // 调理程度配置
+    const levelConfig = {
+      'mild': {
+        label: '轻度调理',
+        color: 'bg-green-50 border-green-200 text-green-800',
+        badgeColor: 'bg-green-100 text-green-700'
+      },
+      'moderate': {
+        label: '中度调理',
+        color: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+        badgeColor: 'bg-yellow-100 text-yellow-700'
+      },
+      'severe': {
+        label: '重度调理',
+        color: 'bg-red-50 border-red-200 text-red-800',
+        badgeColor: 'bg-red-100 text-red-700'
+      }
+    }
+    
+    const level = levelConfig[record.adjustment_level] || null
+    
+    const modal = document.createElement('div')
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50'
+    modal.innerHTML = `
+      <div class="bg-paper rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="sticky top-0 bg-ochre/10 border-b border-ochre/20 p-6 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">📊</span>
+            <div>
+              <h3 class="font-serif text-2xl text-ink">${record.main_type}</h3>
+              <p class="text-xs text-indigo/70 mt-1">测试时间：${date}</p>
+            </div>
+            ${level ? `<span class="text-xs px-3 py-1 rounded-full ${level.badgeColor} font-medium">${level.label}</span>` : ''}
+          </div>
+          <button type="button" class="close-modal w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 flex items-center justify-center text-stone-600">✕</button>
+        </div>
+        
+        <div class="p-6 space-y-6">
+          <!-- 体质描述 -->
+          ${record.details && record.details.description ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">📝</span> 体质描述
+            </h4>
+            <p class="text-indigo/90">${record.details.description}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 兼夹体质 -->
+          ${record.details && record.details.secondaryConstitutions && record.details.secondaryConstitutions.length > 0 ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">🔄</span> 兼夹倾向
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${record.details.secondaryConstitutions.map(c => 
+                `<span class="px-3 py-1 rounded-full bg-ochre/15 text-ochre text-sm">${c}</span>`
+              ).join('')}
+            </div>
+          </div>
+          ` : ''}
+          
+          <!-- 调理程度 -->
+          ${level ? `
+          <div class="card ${level.color} border-2 rounded-xl p-5">
+            <h4 class="font-medium mb-3 flex items-center gap-2">
+              <span class="text-2xl">⚕️</span> 调理建议
+            </h4>
+            <p class="mb-2"><strong>调理程度：</strong>${level.label}</p>
+            ${record.adjustment_level === 'mild' ? 
+              '<p>建议通过日常茶饮调理，配合规律作息和适度运动。</p>' : 
+              record.adjustment_level === 'moderate' ? 
+              '<p>建议采用产品组合进行系统调理，坚持3-6个月可见明显改善。</p>' :
+              '<p>建议前往专业中医机构进行诊疗，由专业中医师制定个性化调理方案。</p>'
+            }
+          </div>
+          ` : ''}
+          
+          <!-- 体质得分 -->
+          ${record.scores ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-4 flex items-center gap-2">
+              <span class="text-ochre">📈</span> 体质得分详情
+            </h4>
+            <div class="grid grid-cols-3 gap-3">
+              ${Object.entries(record.scores).map(([key, value]) => {
+                // 将拼音ID转换为中文名称
+                const nameMap = {
+                  'pinghe': '平和质',
+                  'qixu': '气虚质',
+                  'yangxu': '阳虚质',
+                  'yinxu': '阴虚质',
+                  'tanshi': '痰湿质',
+                  'shire': '湿热质',
+                  'xueyu': '血瘀质',
+                  'qiyu': '气郁质',
+                  'tebing': '特禀质'
+                };
+                const displayName = nameMap[key] || key;
+                return `
+                <div class="p-3 bg-paper rounded-lg border border-stone-200/60 text-center">
+                  <p class="text-xs text-indigo/70 mb-1">${displayName}</p>
+                  <p class="text-2xl font-serif text-ochre">${value}</p>
+                  <p class="text-xs text-indigo/60">分</p>
+                </div>
+              `}).join('')}
+            </div>
+          </div>
+          ` : ''}
+          
+          <!-- 特征表现 -->
+          ${record.details && record.details.features ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">🔍</span> 特征表现
+            </h4>
+            <p class="text-indigo/90">${record.details.features}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 形成原因 -->
+          ${record.details && record.details.cause ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">💡</span> 形成原因
+            </h4>
+            <p class="text-indigo/90">${record.details.cause}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 易患疾病 -->
+          ${record.details && record.details.risks ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">⚠️</span> 易患疾病
+            </h4>
+            <p class="text-indigo/90">${record.details.risks}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 饮食建议 -->
+          ${record.details && record.details.dietRecommend ? `
+          <div class="card bg-mist/60 rounded-xl p-5 border border-stone-200">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">🍽️</span> 饮食建议
+            </h4>
+            <p class="text-indigo/90">${record.details.dietRecommend}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 调理原则 -->
+          ${record.details && record.details.principle ? `
+          <div class="card bg-ochre/5 rounded-xl p-5 border border-ochre/20">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">🌿</span> 调理原则
+            </h4>
+            <p class="text-indigo/90">${record.details.principle}</p>
+          </div>
+          ` : ''}
+          
+          <!-- 推荐食材 -->
+          ${record.details && record.details.foods ? `
+          <div class="card bg-ochre/5 rounded-xl p-5 border border-ochre/20">
+            <h4 class="font-medium text-ink mb-3 flex items-center gap-2">
+              <span class="text-ochre">🥗</span> 推荐食材
+            </h4>
+            <p class="text-indigo/90">${record.details.foods}</p>
+          </div>
+          ` : ''}
+        </div>
+        
+        <div class="sticky bottom-0 bg-paper border-t border-stone-200 p-4 flex gap-3">
+          <button type="button" class="back-to-list flex-1 px-6 py-3 rounded-full border-2 border-ochre text-ochre hover:bg-ochre/10 transition">← 返回列表</button>
+          <button type="button" class="close-modal px-6 py-3 rounded-full bg-ochre text-white hover:bg-ochre/90 transition">关闭</button>
+        </div>
+      </div>
+    `
+    
+    document.body.appendChild(modal)
+    
+    // 返回列表按钮
+    modal.querySelector('.back-to-list').addEventListener('click', () => {
+      modal.remove()
+      window.showHistoryModal()
+    })
     
     // 绑定关闭事件
     modal.querySelectorAll('.close-modal').forEach(btn => {
