@@ -380,9 +380,9 @@
         color: 'bg-red-50 border-red-200',
         textColor: 'text-red-800',
         badgeColor: 'bg-red-100 text-red-700',
-        description: '您的体质偏颇程度较重（得分≥85），建议前往专业中医机构进行诊疗。',
-        recommendation: '建议线下就医，由专业中医师进行辨证施治，制定个性化调理方案。',
-        action: '查找附近医院'
+        description: '您的体质偏颇程度较重（得分≥85），建议寻求专业中医诊疗。',
+        recommendation: '建议线下或线上就医，由专业中医师进行辨证施治，制定个性化调理方案。',
+        action: '线下或线上就医'
       }
     };
     
@@ -452,7 +452,7 @@
         <div class="p-6 space-y-6">
           <div class="p-4 bg-red-50 border-l-4 border-red-400 rounded">
             <p class="text-red-800 font-medium mb-2">⚠️ 重要提示</p>
-            <p class="text-red-700">您的【${main.name}】体质偏颇程度较重，建议尽快前往专业中医机构进行诊疗，以获得更精准的辨证施治方案。</p>
+            <p class="text-red-700">您的【${main.name}】体质偏颇程度较重，建议尽快寻求专业中医诊疗（线下或线上），以获得更精准的辨证施治方案。</p>
           </div>
           
           <div>
@@ -460,7 +460,8 @@
               <span class="text-ochre">📋</span> 就诊建议
             </h4>
             <ul class="space-y-2 text-indigo/90">
-              <li class="flex items-start gap-2"><span class="text-ochre">•</span><span>选择正规中医医院或综合医院中医科</span></li>
+              <li class="flex items-start gap-2"><span class="text-ochre">•</span><span><strong>线下就医：</strong>选择正规中医医院或综合医院中医科</span></li>
+              <li class="flex items-start gap-2"><span class="text-ochre">•</span><span><strong>线上问诊：</strong>通过互联网医院平台咨询专业中医师</span></li>
               <li class="flex items-start gap-2"><span class="text-ochre">•</span><span>挂号时选择"中医体质调理"或"中医内科"</span></li>
               <li class="flex items-start gap-2"><span class="text-ochre">•</span><span>携带本次测试结果，便于医生参考</span></li>
               <li class="flex items-start gap-2"><span class="text-ochre">•</span><span>准备详细描述近期身体状况和不适症状</span></li>
@@ -705,12 +706,17 @@
     const main = DATA[constitutionId];
     if (!main) return;
     
-    // 定义各体质的茶饮推荐
+    // 定义各体质的茶饮推荐（包含药材组合）
     const teaRecommendations = {
       qixu: [
         {
           name: '黄芪红枣茶',
           ingredients: ['陇西黄芪 10克', '临泽红枣 5颗', '枸杞 5克', '开水 500ml'],
+          herbs: [
+            { name: '陇西黄芪', amount: '10克', property: '补气固表', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '临泽红枣', amount: '5颗', property: '补中益气', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' },
+            { name: '枸杞', amount: '5克', property: '滋补肝肾', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop' }
+          ],
           effect: '补气健脾，增强体质',
           method: '黄芪和红枣放入茶壶，倒入开水焖泡15分钟，加入枸杞即可饮用。',
           tips: '每日1-2次，饭后饮用效果更佳。',
@@ -719,6 +725,11 @@
         {
           name: '党参桂圆茶',
           ingredients: ['党参 10克', '桂圆肉 10克', '红糖 适量', '开水 500ml'],
+          herbs: [
+            { name: '党参', amount: '10克', property: '补中益气', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '桂圆肉', amount: '10克', property: '养血安神', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' },
+            { name: '红糖', amount: '适量', property: '温中补虚', image: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=200&h=200&fit=crop' }
+          ],
           effect: '补气养血，改善疲劳',
           method: '党参和桂圆放入茶壶，倒入开水焖泡10分钟，加红糖调味。',
           tips: '适合下午饮用，提神补气。',
@@ -729,6 +740,11 @@
         {
           name: '生姜红糖茶',
           ingredients: ['天水生姜 20克', '红糖 15克', '红枣 3颗', '开水 500ml'],
+          herbs: [
+            { name: '天水生姜', amount: '20克', property: '温中散寒', image: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=200&h=200&fit=crop' },
+            { name: '红糖', amount: '15克', property: '温补脾胃', image: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=200&h=200&fit=crop' },
+            { name: '红枣', amount: '3颗', property: '补中益气', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' }
+          ],
           effect: '温阳散寒，暖胃驱寒',
           method: '生姜切片，与红枣一起煮水10分钟，加红糖调味。',
           tips: '早上空腹饮用效果最佳，晚上不宜。',
@@ -737,6 +753,11 @@
         {
           name: '桂圆枸杞茶',
           ingredients: ['桂圆肉 15克', '民勤枸杞 10克', '红枣 5颗', '开水 500ml'],
+          herbs: [
+            { name: '桂圆肉', amount: '15克', property: '补心脾', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' },
+            { name: '民勤枸杞', amount: '10克', property: '补肾阳', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop' },
+            { name: '红枣', amount: '5颗', property: '养血安神', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' }
+          ],
           effect: '温补肾阳，养血安神',
           method: '所有食材放入茶壶，倒入开水焖泡15分钟即可。',
           tips: '可反复冲泡2-3次。',
@@ -747,6 +768,11 @@
         {
           name: '麦冬百合茶',
           ingredients: ['麦冬 10克', '兰州百合 10克', '枸杞 5克', '冰糖 适量', '开水 500ml'],
+          herbs: [
+            { name: '麦冬', amount: '10克', property: '养阴生津', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '兰州百合', amount: '10克', property: '润肺止咳', image: 'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=200&h=200&fit=crop' },
+            { name: '枸杞', amount: '5克', property: '滋补肝肾', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop' }
+          ],
           effect: '滋阴润燥，清心安神',
           method: '麦冬和百合放入茶壶，倒入开水焖泡10分钟，加枸杞和冰糖。',
           tips: '下午或睡前饮用，有助改善睡眠。',
@@ -755,6 +781,11 @@
         {
           name: '石斛菊花茶',
           ingredients: ['石斛 5克', '菊花 5克', '枸杞 5克', '蜂蜜 适量', '开水 500ml'],
+          herbs: [
+            { name: '石斛', amount: '5克', property: '养阴清热', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '菊花', amount: '5克', property: '清肝明目', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' },
+            { name: '枸杞', amount: '5克', property: '补肝肾', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop' }
+          ],
           effect: '养阴明目，清热生津',
           method: '石斛和菊花放入茶壶，倒入开水焖泡10分钟，待温后加蜂蜜。',
           tips: '适合长期用眼人群。',
@@ -765,6 +796,11 @@
         {
           name: '陈皮荷叶茶',
           ingredients: ['陈皮 5克', '荷叶 5克', '山楂 10克', '开水 500ml'],
+          herbs: [
+            { name: '陈皮', amount: '5克', property: '理气健脾', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '荷叶', amount: '5克', property: '清暑利湿', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' },
+            { name: '山楂', amount: '10克', property: '消食化积', image: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=200&h=200&fit=crop' }
+          ],
           effect: '健脾祛湿，消食化积',
           method: '所有食材放入茶壶，倒入开水焖泡10分钟即可。',
           tips: '饭后饮用，有助消化。',
@@ -773,6 +809,11 @@
         {
           name: '薏米茯苓茶',
           ingredients: ['炒薏米 15克', '茯苓 10克', '陈皮 3克', '开水 500ml'],
+          herbs: [
+            { name: '定西薏苡仁', amount: '15克', property: '利水渗湿', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200&h=200&fit=crop' },
+            { name: '茯苓', amount: '10克', property: '健脾宁心', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '陈皮', amount: '3克', property: '理气和中', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' }
+          ],
           effect: '利水渗湿，健脾和胃',
           method: '薏米和茯苓煮水15分钟，加入陈皮焖泡5分钟。',
           tips: '每日1-2次，坚持饮用效果更佳。',
@@ -783,6 +824,10 @@
         {
           name: '绿豆菊花茶',
           ingredients: ['定西绿豆 30克', '菊花 5克', '冰糖 适量', '清水 800ml'],
+          herbs: [
+            { name: '定西绿豆', amount: '30克', property: '清热解毒', image: 'https://images.unsplash.com/photo-1583852707983-fe5bee5e7e9e?w=200&h=200&fit=crop' },
+            { name: '菊花', amount: '5克', property: '清肝明目', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' }
+          ],
           effect: '清热利湿，解毒降火',
           method: '绿豆煮水30分钟，加入菊花焖泡5分钟，加冰糖调味。',
           tips: '放凉后饮用效果更佳。',
@@ -791,6 +836,11 @@
         {
           name: '陇南绿茶',
           ingredients: ['陇南绿茶 5克', '薄荷叶 3片', '柠檬 2片', '开水 500ml'],
+          herbs: [
+            { name: '陇南绿茶', amount: '5克', property: '清热利尿', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' },
+            { name: '薄荷叶', amount: '3片', property: '疏散风热', image: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=200&h=200&fit=crop' },
+            { name: '柠檬', amount: '2片', property: '生津止渴', image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=200&h=200&fit=crop' }
+          ],
           effect: '清热利尿，疏肝解郁',
           method: '绿茶用80度水冲泡，加入薄荷和柠檬焖泡5分钟。',
           tips: '不要用沸水，以免破坏营养。',
@@ -801,6 +851,11 @@
         {
           name: '玫瑰山楂茶',
           ingredients: ['苦水玫瑰 6朵', '天水山楂 10克', '红糖 适量', '开水 500ml'],
+          herbs: [
+            { name: '苦水玫瑰', amount: '6朵', property: '活血化瘀', image: 'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=200&h=200&fit=crop' },
+            { name: '天水山楂', amount: '10克', property: '消食化积', image: 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=200&h=200&fit=crop' },
+            { name: '红糖', amount: '适量', property: '温经散寒', image: 'https://images.unsplash.com/photo-1587735243615-c03f25aaff15?w=200&h=200&fit=crop' }
+          ],
           effect: '活血化瘀，疏肝理气',
           method: '山楂煮水10分钟，加入玫瑰花焖泡5分钟，加红糖调味。',
           tips: '经期前一周开始饮用。',
@@ -809,6 +864,11 @@
         {
           name: '红花当归茶',
           ingredients: ['红花 3克', '当归 5克', '红枣 5颗', '开水 500ml'],
+          herbs: [
+            { name: '红花', amount: '3克', property: '活血通经', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '当归', amount: '5克', property: '补血活血', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '红枣', amount: '5颗', property: '养血安神', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' }
+          ],
           effect: '活血通络，补血养颜',
           method: '所有食材放入茶壶，倒入开水焖泡15分钟即可。',
           tips: '孕妇禁用。',
@@ -819,6 +879,11 @@
         {
           name: '玫瑰佛手茶',
           ingredients: ['苦水玫瑰 8朵', '佛手 5克', '陈皮 3克', '蜂蜜 适量', '开水 500ml'],
+          herbs: [
+            { name: '苦水玫瑰', amount: '8朵', property: '疏肝解郁', image: 'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=200&h=200&fit=crop' },
+            { name: '佛手', amount: '5克', property: '理气和中', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '陈皮', amount: '3克', property: '健脾理气', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' }
+          ],
           effect: '疏肝解郁，理气和中',
           method: '佛手和陈皮放入茶壶，倒入开水焖泡10分钟，加玫瑰花，待温后加蜂蜜。',
           tips: '饭后饮用，有助舒缓情绪。',
@@ -827,6 +892,10 @@
         {
           name: '薄荷柠檬茶',
           ingredients: ['陇南薄荷 10片', '柠檬 半个', '蜂蜜 适量', '开水 500ml'],
+          herbs: [
+            { name: '陇南薄荷', amount: '10片', property: '疏散郁热', image: 'https://images.unsplash.com/photo-1628556270448-4d4e4148e1b1?w=200&h=200&fit=crop' },
+            { name: '柠檬', amount: '半个', property: '生津开胃', image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=200&h=200&fit=crop' }
+          ],
           effect: '清心疏肝，提神醒脑',
           method: '薄荷和柠檬片放入茶壶，倒入开水焖泡5分钟，待温后加蜂蜜。',
           tips: '下午饮用，缓解压力。',
@@ -837,6 +906,12 @@
         {
           name: '黄芪防风茶',
           ingredients: ['陇西黄芪 15克', '防风 10克', '白术 10克', '红枣 5颗', '开水 500ml'],
+          herbs: [
+            { name: '陇西黄芪', amount: '15克', property: '益气固表', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '防风', amount: '10克', property: '祛风解表', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '白术', amount: '10克', property: '健脾益气', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '红枣', amount: '5颗', property: '补中益气', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' }
+          ],
           effect: '益气固表，增强免疫',
           method: '所有食材放入茶壶，倒入开水焖泡15分钟即可。',
           tips: '长期饮用可减少过敏发作。',
@@ -845,6 +920,10 @@
         {
           name: '蜂蜜柠檬茶',
           ingredients: ['陇南土蜂蜜 20克', '柠檬 半个', '温水 500ml'],
+          herbs: [
+            { name: '陇南土蜂蜜', amount: '20克', property: '润肺止咳', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=200&h=200&fit=crop' },
+            { name: '柠檬', amount: '半个', property: '生津止渴', image: 'https://images.unsplash.com/photo-1590502593747-42a996133562?w=200&h=200&fit=crop' }
+          ],
           effect: '润肺止咳，缓解过敏',
           method: '柠檬切片，用温水（不超过60度）冲泡，加入蜂蜜搅拌均匀。',
           tips: '水温不要太高，以免破坏蜂蜜营养。',
@@ -855,6 +934,11 @@
         {
           name: '五花茶',
           ingredients: ['菊花 3克', '金银花 3克', '玫瑰花 3克', '茉莉花 3克', '桂花 3克', '开水 500ml'],
+          herbs: [
+            { name: '菊花', amount: '3克', property: '清肝明目', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' },
+            { name: '金银花', amount: '3克', property: '清热解毒', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=200&h=200&fit=crop' },
+            { name: '玫瑰花', amount: '3克', property: '理气解郁', image: 'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23?w=200&h=200&fit=crop' }
+          ],
           effect: '清心润肺，平衡调和',
           method: '所有花茶放入茶壶，倒入开水焖泡5分钟即可。',
           tips: '四季皆宜，保持平和。',
@@ -863,6 +947,11 @@
         {
           name: '红枣枸杞茶',
           ingredients: ['红枣 5颗', '枸杞 10克', '桂圆 5克', '开水 500ml'],
+          herbs: [
+            { name: '红枣', amount: '5颗', property: '补中益气', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' },
+            { name: '枸杞', amount: '10克', property: '滋补肝肾', image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=200&h=200&fit=crop' },
+            { name: '桂圆', amount: '5克', property: '养血安神', image: 'https://images.unsplash.com/photo-1607965342474-e173c0c6d9b8?w=200&h=200&fit=crop' }
+          ],
           effect: '补气养血，保持健康',
           method: '红枣去核，与枸杞、桂圆一起放入茶壶，倒入开水焖泡10分钟。',
           tips: '日常保健，适量饮用。',
@@ -879,70 +968,143 @@
       const productsSection = document.getElementById('products');
       const newSection = document.createElement('section');
       newSection.id = 'teaRecommendation';
-      newSection.className = 'mb-16';
+      newSection.className = 'section py-16 bg-paper';
       productsSection.parentNode.insertBefore(newSection, productsSection);
     }
     
-    document.getElementById('teaRecommendation').innerHTML = `
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-2 mb-4">
-          <span class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">🍵</span>
+    const teaSectionEl = document.getElementById('teaRecommendation');
+    teaSectionEl.classList.remove('hidden');
+    teaSectionEl.innerHTML = `
+      <div class="max-w-6xl mx-auto px-4">
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center gap-2 mb-4">
+            <span class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-2xl">🍵</span>
+          </div>
+          <h2 class="font-serif text-3xl mb-3">【${main.name}】茶饮调理方案</h2>
+          <p class="text-indigo/80 max-w-2xl mx-auto">轻度调理建议：通过日常茶饮温和调理，配合规律作息和适度运动，坚持3个月可见改善。</p>
         </div>
-        <h2 class="font-serif text-3xl mb-3">【${main.name}】茶饮调理方案</h2>
-        <p class="text-indigo/80 max-w-2xl mx-auto">轻度调理建议：通过日常茶饮温和调理，配合规律作息和适度运动，坚持3个月可见改善。</p>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-6 mb-8">
-        ${teas.map(tea => `
-          <div class="card bg-paper rounded-2xl border border-stone-200/60 overflow-hidden shadow-sm hover:shadow-md transition">
-            <div class="h-48 overflow-hidden">
-              <img src="${tea.image}" alt="${tea.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop'">
-            </div>
-            <div class="p-6">
-              <h3 class="font-serif text-xl text-ink mb-3">${tea.name}</h3>
-              <div class="space-y-3 text-sm">
-                <div>
-                  <p class="font-medium text-ochre mb-2">🌿 配方</p>
-                  <ul class="space-y-1 text-indigo/80">
-                    ${tea.ingredients.map(ing => `<li class="flex items-start gap-2"><span class="text-ochre">•</span><span>${ing}</span></li>`).join('')}
-                  </ul>
-                </div>
-                <div>
-                  <p class="font-medium text-ochre mb-1">💡 功效</p>
-                  <p class="text-indigo/80">${tea.effect}</p>
-                </div>
-                <div>
-                  <p class="font-medium text-ochre mb-1">👨‍🍳 制作方法</p>
-                  <p class="text-indigo/80">${tea.method}</p>
-                </div>
-                ${tea.tips ? `
-                <div class="p-3 bg-ochre/5 rounded-lg border border-ochre/20">
-                  <p class="font-medium text-ochre mb-1">⭐ 小贴士</p>
-                  <p class="text-indigo/80">${tea.tips}</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-8">
+          ${teas.map((tea, teaIndex) => `
+            <div class="card bg-white rounded-2xl border-2 border-stone-200/60 overflow-hidden shadow-sm hover:shadow-lg transition">
+              <div class="h-48 overflow-hidden">
+                <img src="${tea.image}" alt="${tea.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400&h=400&fit=crop'">
+              </div>
+              <div class="p-6">
+                <h3 class="font-serif text-xl text-ink mb-4">${tea.name}</h3>
+                
+                <!-- 药材组合展示 -->
+                ${tea.herbs ? `
+                <div class="mb-4">
+                  <p class="font-medium text-ochre mb-3 flex items-center gap-2">
+                    <span>🌿</span> 药材组合
+                  </p>
+                  <div class="grid grid-cols-3 gap-2 mb-3">
+                    ${tea.herbs.map(herb => `
+                      <div class="flex flex-col items-center p-2 bg-ochre/5 rounded-lg border border-ochre/20 hover:border-ochre/40 transition">
+                        <div class="w-12 h-12 rounded-full overflow-hidden mb-1 bg-white">
+                          <img src="${herb.image}" alt="${herb.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=100&h=100&fit=crop'">
+                        </div>
+                        <p class="text-xs font-medium text-ink text-center">${herb.name}</p>
+                        <p class="text-xs text-ochre text-center">${herb.amount}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                  <div class="space-y-1">
+                    ${tea.herbs.map(herb => `
+                      <p class="text-xs text-indigo/70 flex items-start gap-1">
+                        <span class="text-ochre">•</span>
+                        <span><strong>${herb.name}：</strong>${herb.property}</span>
+                      </p>
+                    `).join('')}
+                  </div>
                 </div>
                 ` : ''}
+                
+                <div class="space-y-3 text-sm">
+                  <div>
+                    <p class="font-medium text-ochre mb-1">💡 功效</p>
+                    <p class="text-indigo/80">${tea.effect}</p>
+                  </div>
+                  <div>
+                    <p class="font-medium text-ochre mb-1">👨‍🍳 制作方法</p>
+                    <p class="text-indigo/80">${tea.method}</p>
+                  </div>
+                  ${tea.tips ? `
+                  <div class="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <p class="font-medium text-green-700 mb-1">⭐ 小贴士</p>
+                    <p class="text-green-600 text-xs">${tea.tips}</p>
+                  </div>
+                  ` : ''}
+                </div>
+                <button type="button" class="buy-tea-ingredients-btn mt-4 w-full px-6 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition shadow-md" data-tea-index="${teaIndex}" data-constitution="${constitutionId}">
+                  一键购买食材
+                </button>
               </div>
-              <button type="button" class="mt-4 w-full px-6 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition">
-                一键购买食材
-              </button>
             </div>
-          </div>
-        `).join('')}
-      </div>
-      
-      <div class="card bg-green-50 border-2 border-green-200 p-6 rounded-2xl">
-        <h3 class="font-medium text-green-800 mb-3 flex items-center gap-2">
-          <span class="text-2xl">📝</span> 饮用建议
-        </h3>
-        <ul class="space-y-2 text-green-700">
-          <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>每日饮用1-2次，建议上午和下午各一次</span></li>
-          <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>坚持饮用3个月为一个调理周期</span></li>
-          <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>可根据个人口味适当调整配方用量</span></li>
-          <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>配合规律作息、适度运动效果更佳</span></li>
-          <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>如症状加重或无改善，建议及时就医</span></li>
-        </ul>
+          `).join('')}
+        </div>
+        
+        <div class="card bg-green-50 border-2 border-green-200 p-6 rounded-2xl max-w-4xl mx-auto">
+          <h3 class="font-medium text-green-800 mb-3 flex items-center gap-2">
+            <span class="text-2xl">📝</span> 饮用建议
+          </h3>
+          <ul class="space-y-2 text-green-700">
+            <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>每日饮用1-2次，建议上午和下午各一次</span></li>
+            <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>坚持饮用3个月为一个调理周期</span></li>
+            <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>可根据个人口味适当调整配方用量</span></li>
+            <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>配合规律作息、适度运动效果更佳</span></li>
+            <li class="flex items-start gap-2"><span class="text-green-600">•</span><span>如症状加重或无改善，建议及时就医</span></li>
+          </ul>
+        </div>
       </div>
     `;
+    
+    // 绑定购买茶饮食材按钮事件
+    document.querySelectorAll('.buy-tea-ingredients-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const teaIndex = parseInt(this.dataset.teaIndex);
+        const constitutionId = this.dataset.constitution;
+        const tea = teaRecommendations[constitutionId][teaIndex];
+        buyTeaIngredients(tea);
+      });
+    });
+  }
+  
+  /** 购买茶饮食材 */
+  function buyTeaIngredients(tea) {
+    if (!tea || !tea.herbs) {
+      alert('茶饮信息不完整');
+      return;
+    }
+    
+    // 将药材添加到购物车
+    if (window.addToCart) {
+      let addedCount = 0;
+      tea.herbs.forEach((herb, index) => {
+        const cartItem = {
+          id: `tea-${tea.name}-${index}`,
+          name: herb.name,
+          type: 'herb',
+          price: 12.90 + (index * 3), // 示例价格
+          quantity: 1,
+          image: herb.image,
+          description: `${tea.name}所需药材 - ${herb.property}`
+        };
+        window.addToCart(cartItem);
+        addedCount++;
+      });
+      
+      if (addedCount > 0) {
+        alert(`已将 ${tea.name} 的 ${addedCount} 种药材添加到购物车！`);
+        // 自动打开购物车
+        if (window.showCartModal) {
+          setTimeout(() => {
+            window.showCartModal();
+          }, 500);
+        }
+      }
+    }
   }
 
   // ---------- 食谱弹窗 ----------
