@@ -43,12 +43,15 @@ window.addEventListener('load', checkUser);
 
 // 右上角注册
 window.handleHeaderSignUp = async function() {
-    const email = document.getElementById('header-email').value
+    const email = document.getElementById('header-email').value.trim()
     const password = document.getElementById('header-password').value
     const msg = document.getElementById('header-auth-msg')
     
     if(!email || !password) { 
-        if(msg) msg.innerText = "请填写完整"; 
+        if(msg) {
+            msg.innerText = "请填写完整"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
         return; 
     }
@@ -56,36 +59,85 @@ window.handleHeaderSignUp = async function() {
     // 验证邮箱格式
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
-        if(msg) msg.innerText = "请输入有效的邮箱地址"
+        if(msg) {
+            msg.innerText = "请输入有效的邮箱地址"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
         return
     }
     
     // 验证密码长度
     if (password.length < 6) {
-        if(msg) msg.innerText = "密码至少需要6个字符"
+        if(msg) {
+            msg.innerText = "密码至少需要6个字符"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
         return
     }
     
-    if(msg) msg.innerText = "注册中..."
+    if(msg) {
+        msg.innerText = "注册中..."
+        msg.className = "text-xs text-blue-600 absolute top-full right-4 mt-1"
+    }
     
     try {
         const { data, error } = await supabaseClient.auth.signUp({ 
             email, 
             password,
             options: {
-                emailRedirectTo: window.location.origin
+                emailRedirectTo: window.location.origin,
+                data: {
+                    email: email
+                }
             }
         })
         
         if (error) {
             console.error('注册错误:', error)
-            if(msg) msg.innerText = "注册失败: " + error.message
+            
+            // 翻译常见错误信息
+            let errorMsg = error.message
+            if (error.message.includes('User already registered')) {
+                errorMsg = "该邮箱已被注册，请直接登录"
+            } else if (error.message.includes('Invalid email')) {
+                errorMsg = "邮箱格式无效"
+            } else if (error.message.includes('Password should be at least')) {
+                errorMsg = "密码长度不足"
+            } else if (error.message.includes('Signups not allowed')) {
+                errorMsg = "当前不允许注册，请联系管理员"
+            } else if (error.message.includes('Email rate limit exceeded')) {
+                errorMsg = "发送邮件过于频繁，请稍后再试"
+            }
+            
+            if(msg) {
+                msg.innerText = errorMsg
+                msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+            }
             setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
         } else {
             console.log('注册成功:', data)
-            alert("注册成功！请查收验证邮件（可能在垃圾箱）。")
+            
+            // 检查是否需要邮箱验证
+            if (data.user && data.user.identities && data.user.identities.length === 0) {
+                // 邮箱已存在但未验证
+                showRegistrationModal('邮箱已注册但未验证', 
+                    '该邮箱已注册但尚未验证。我们已重新发送验证邮件，请查收邮箱（包括垃圾箱）并点击验证链接。', 
+                    'warning')
+            } else if (data.user && !data.session) {
+                // 需要邮箱验证
+                showRegistrationModal('注册成功！', 
+                    '我们已向您的邮箱发送验证链接。请查收邮件（可能在垃圾箱中）并点击链接完成验证。验证后即可登录使用。', 
+                    'success')
+            } else {
+                // 直接注册成功（无需验证）
+                showRegistrationModal('注册成功！', 
+                    '您已成功注册并登录，现在可以开始使用所有功能。', 
+                    'success')
+                checkUser() // 刷新界面状态
+            }
+            
             if(msg) msg.innerText = ""
             // 清空输入框
             document.getElementById('header-email').value = ''
@@ -93,35 +145,122 @@ window.handleHeaderSignUp = async function() {
         }
     } catch (err) {
         console.error('注册异常:', err)
-        if(msg) msg.innerText = "注册失败: " + err.message
+        if(msg) {
+            msg.innerText = "注册失败，请稍后重试"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
     }
 }
 
+// 显示注册结果弹窗
+function showRegistrationModal(title, message, type = 'success') {
+    const modal = document.createElement('div')
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50'
+    
+    const iconMap = {
+        success: '✅',
+        warning: '⚠️',
+        error: '❌'
+    }
+    
+    const colorMap = {
+        success: 'bg-green-50 border-green-200 text-green-800',
+        warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+        error: 'bg-red-50 border-red-200 text-red-800'
+    }
+    
+    modal.innerHTML = `
+      <div class="bg-paper rounded-2xl max-w-md w-full shadow-2xl">
+        <div class="p-6">
+          <div class="text-center mb-4">
+            <div class="text-5xl mb-3">${iconMap[type]}</div>
+            <h3 class="font-serif text-2xl text-ink mb-2">${title}</h3>
+          </div>
+          <div class="p-4 ${colorMap[type]} border-2 rounded-xl mb-6">
+            <p class="text-sm leading-relaxed">${message}</p>
+          </div>
+          ${type === 'success' && message.includes('验证') ? `
+          <div class="p-4 bg-mist/60 rounded-xl border border-stone-200 mb-4">
+            <p class="text-sm text-indigo/90 mb-2"><strong>📧 没收到邮件？</strong></p>
+            <ul class="text-xs text-indigo/70 space-y-1">
+              <li>• 检查垃圾邮件/垃圾箱文件夹</li>
+              <li>• 等待几分钟后刷新邮箱</li>
+              <li>• 确认邮箱地址是否正确</li>
+              <li>• 检查邮箱是否已满</li>
+            </ul>
+          </div>
+          ` : ''}
+          <button type="button" class="close-modal w-full px-6 py-3 rounded-full bg-ochre text-white hover:bg-ochre/90 transition">我知道了</button>
+        </div>
+      </div>
+    `
+    
+    document.body.appendChild(modal)
+    
+    // 绑定关闭事件
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+        modal.remove()
+    })
+    
+    // 点击背景关闭
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove()
+        }
+    })
+}
+
 // 右上角登录
 window.handleHeaderSignIn = async function() {
-    const email = document.getElementById('header-email').value
+    const email = document.getElementById('header-email').value.trim()
     const password = document.getElementById('header-password').value
     const msg = document.getElementById('header-auth-msg')
     
     if(!email || !password) { 
-        if(msg) msg.innerText = "请填写完整"; 
+        if(msg) {
+            msg.innerText = "请填写完整"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
         return; 
     }
     
-    if(msg) msg.innerText = "登录中..."
+    if(msg) {
+        msg.innerText = "登录中..."
+        msg.className = "text-xs text-blue-600 absolute top-full right-4 mt-1"
+    }
     
     try {
         const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
         
         if (error) {
             console.error('登录错误:', error)
-            if(msg) msg.innerText = "登录失败: " + error.message
+            
+            // 翻译常见错误信息
+            let errorMsg = error.message
+            if (error.message.includes('Invalid login credentials')) {
+                errorMsg = "邮箱或密码错误"
+            } else if (error.message.includes('Email not confirmed')) {
+                errorMsg = "邮箱未验证，请先验证邮箱"
+            } else if (error.message.includes('User not found')) {
+                errorMsg = "该邮箱未注册"
+            } else if (error.message.includes('Too many requests')) {
+                errorMsg = "登录尝试过多，请稍后再试"
+            }
+            
+            if(msg) {
+                msg.innerText = errorMsg
+                msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+            }
             setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
         } else {
             console.log('登录成功:', data)
-            if(msg) msg.innerText = ""
+            if(msg) {
+                msg.innerText = "登录成功！"
+                msg.className = "text-xs text-green-600 absolute top-full right-4 mt-1"
+            }
+            setTimeout(() => { if(msg) msg.innerText = "" }, 2000)
             checkUser() // 刷新界面状态
             // 清空输入框
             document.getElementById('header-email').value = ''
@@ -129,7 +268,10 @@ window.handleHeaderSignIn = async function() {
         }
     } catch (err) {
         console.error('登录异常:', err)
-        if(msg) msg.innerText = "登录失败: " + err.message
+        if(msg) {
+            msg.innerText = "登录失败，请稍后重试"
+            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        }
         setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
     }
 }

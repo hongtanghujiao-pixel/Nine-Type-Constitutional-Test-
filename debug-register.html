@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>注册问题诊断工具</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">🔍 注册问题诊断工具</h1>
+    
+    <!-- 步骤1: 测试 Supabase 连接 -->
+    <div class="bg-white rounded-lg shadow p-6 mb-4">
+      <h2 class="text-xl font-semibold mb-4">步骤1: 测试 Supabase 连接</h2>
+      <button onclick="testConnection()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        测试连接
+      </button>
+      <div id="connectionResult" class="mt-4"></div>
+    </div>
+
+    <!-- 步骤2: 检查认证设置 -->
+    <div class="bg-white rounded-lg shadow p-6 mb-4">
+      <h2 class="text-xl font-semibold mb-4">步骤2: 检查认证设置</h2>
+      <button onclick="checkAuthSettings()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        检查设置
+      </button>
+      <div id="authSettingsResult" class="mt-4"></div>
+    </div>
+
+    <!-- 步骤3: 尝试注册 -->
+    <div class="bg-white rounded-lg shadow p-6 mb-4">
+      <h2 class="text-xl font-semibold mb-4">步骤3: 测试注册功能</h2>
+      <div class="space-y-3">
+        <input type="email" id="testEmail" placeholder="测试邮箱" 
+               class="w-full px-4 py-2 border rounded" 
+               value="test@example.com">
+        <input type="password" id="testPassword" placeholder="测试密码" 
+               class="w-full px-4 py-2 border rounded" 
+               value="test123456">
+        <button onclick="testRegister()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          测试注册
+        </button>
+      </div>
+      <div id="registerResult" class="mt-4"></div>
+    </div>
+
+    <!-- 步骤4: 查看用户列表 -->
+    <div class="bg-white rounded-lg shadow p-6 mb-4">
+      <h2 class="text-xl font-semibold mb-4">步骤4: 查看已注册用户</h2>
+      <button onclick="listUsers()" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+        查看用户
+      </button>
+      <div id="usersResult" class="mt-4"></div>
+    </div>
+
+    <!-- 完整日志 -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">📋 完整日志</h2>
+      <div id="fullLog" class="bg-gray-100 p-4 rounded font-mono text-sm max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://yospqbbeykizesujlhiq.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlvc3BxYmJleWtpemVzdWpsaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTY1MTcsImV4cCI6MjA4NjU3MjUxN30.gE1rm3hpyV-_NVIPCch0hYG29OyxBGY2jzshVizPAZc'
+    
+    const { createClient } = supabase
+    const client = createClient(supabaseUrl, supabaseKey)
+    
+    let logs = []
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString()
+      const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`
+      logs.push(logEntry)
+      document.getElementById('fullLog').innerHTML = logs.join('\n')
+      console.log(logEntry)
+    }
+    
+    function showResult(elementId, html, isError = false) {
+      const el = document.getElementById(elementId)
+      el.innerHTML = html
+      el.className = `mt-4 p-4 rounded ${isError ? 'bg-red-50 border border-red-200' : 'bg-green-50 border border-green-200'}`
+    }
+    
+    async function testConnection() {
+      log('开始测试 Supabase 连接...')
+      try {
+        const { data, error } = await client.auth.getSession()
+        if (error) {
+          log(`连接错误: ${error.message}`, 'error')
+          showResult('connectionResult', `
+            <p class="text-red-600 font-semibold">❌ 连接失败</p>
+            <p class="text-sm mt-2">错误: ${error.message}</p>
+          `, true)
+        } else {
+          log('Supabase 连接成功')
+          showResult('connectionResult', `
+            <p class="text-green-600 font-semibold">✅ 连接成功</p>
+            <p class="text-sm mt-2">Supabase URL: ${supabaseUrl}</p>
+            <p class="text-sm">当前会话: ${data.session ? '已登录' : '未登录'}</p>
+          `)
+        }
+      } catch (err) {
+        log(`连接异常: ${err.message}`, 'error')
+        showResult('connectionResult', `
+          <p class="text-red-600 font-semibold">❌ 连接异常</p>
+          <p class="text-sm mt-2">${err.message}</p>
+        `, true)
+      }
+    }
+    
+    async function checkAuthSettings() {
+      log('检查认证设置...')
+      showResult('authSettingsResult', `
+        <p class="text-blue-600 font-semibold">📋 需要手动检查的设置</p>
+        <div class="text-sm mt-3 space-y-2">
+          <p><strong>1. 登录 Supabase 控制台:</strong></p>
+          <p class="ml-4">→ <a href="https://supabase.com/dashboard/project/yospqbbeykizesujlhiq" target="_blank" class="text-blue-600 underline">点击这里打开</a></p>
+          
+          <p class="mt-3"><strong>2. 检查邮箱验证设置:</strong></p>
+          <p class="ml-4">→ Authentication → Providers → Email</p>
+          <p class="ml-4">→ 找到 "Confirm email" 选项</p>
+          <p class="ml-4">→ <span class="bg-yellow-200 px-2 py-1 rounded">如果勾选了，请取消勾选</span></p>
+          
+          <p class="mt-3"><strong>3. 检查注册开关:</strong></p>
+          <p class="ml-4">→ Authentication → Settings</p>
+          <p class="ml-4">→ 确保 "Enable email signups" 已启用</p>
+          
+          <p class="mt-3"><strong>4. 检查邮件设置:</strong></p>
+          <p class="ml-4">→ Project Settings → Auth → Email Templates</p>
+          <p class="ml-4">→ 如果使用默认邮件服务，确认配置正确</p>
+        </div>
+      `)
+      log('认证设置检查说明已显示')
+    }
+    
+    async function testRegister() {
+      const email = document.getElementById('testEmail').value.trim()
+      const password = document.getElementById('testPassword').value
+      
+      log(`尝试注册: ${email}`)
+      showResult('registerResult', '<p class="text-blue-600">注册中...</p>')
+      
+      try {
+        const { data, error } = await client.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: window.location.origin
+          }
+        })
+        
+        if (error) {
+          log(`注册失败: ${error.message}`, 'error')
+          showResult('registerResult', `
+            <p class="text-red-600 font-semibold">❌ 注册失败</p>
+            <p class="text-sm mt-2"><strong>错误代码:</strong> ${error.status || 'N/A'}</p>
+            <p class="text-sm"><strong>错误信息:</strong> ${error.message}</p>
+            <div class="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <p class="font-semibold text-sm">💡 可能的原因:</p>
+              <ul class="text-sm mt-2 space-y-1 list-disc list-inside">
+                ${error.message.includes('User already registered') ? 
+                  '<li>该邮箱已被注册</li><li>解决: 使用其他邮箱或直接登录</li>' : ''}
+                ${error.message.includes('Signups not allowed') ? 
+                  '<li>Supabase 禁用了注册功能</li><li>解决: 在控制台启用 "Enable email signups"</li>' : ''}
+                ${error.message.includes('Invalid email') ? 
+                  '<li>邮箱格式无效</li><li>解决: 使用正确的邮箱格式</li>' : ''}
+                ${error.message.includes('Password') ? 
+                  '<li>密码不符合要求</li><li>解决: 密码至少6个字符</li>' : ''}
+                ${error.message.includes('rate limit') ? 
+                  '<li>请求过于频繁</li><li>解决: 等待几分钟后重试</li>' : ''}
+              </ul>
+            </div>
+          `, true)
+        } else {
+          log('注册成功!')
+          log(`用户ID: ${data.user?.id}`)
+          log(`需要验证: ${!data.session}`)
+          log(`Identities: ${JSON.stringify(data.user?.identities)}`)
+          
+          showResult('registerResult', `
+            <p class="text-green-600 font-semibold">✅ 注册成功</p>
+            <div class="text-sm mt-3 space-y-1">
+              <p><strong>用户ID:</strong> ${data.user?.id}</p>
+              <p><strong>邮箱:</strong> ${data.user?.email}</p>
+              <p><strong>创建时间:</strong> ${new Date(data.user?.created_at).toLocaleString()}</p>
+              <p><strong>是否需要验证:</strong> ${!data.session ? '是（需要点击邮件验证）' : '否（可直接登录）'}</p>
+              <p><strong>Session:</strong> ${data.session ? '已创建' : '未创建'}</p>
+              <p><strong>Identities:</strong> ${data.user?.identities?.length || 0} 个</p>
+            </div>
+            ${!data.session ? `
+              <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                <p class="font-semibold text-sm">📧 需要邮箱验证</p>
+                <p class="text-sm mt-1">请检查邮箱（包括垃圾箱）并点击验证链接</p>
+                <p class="text-sm mt-2 text-orange-600">如果不想验证，请在 Supabase 控制台关闭 "Confirm email"</p>
+              </div>
+            ` : ''}
+          `)
+        }
+      } catch (err) {
+        log(`注册异常: ${err.message}`, 'error')
+        showResult('registerResult', `
+          <p class="text-red-600 font-semibold">❌ 注册异常</p>
+          <p class="text-sm mt-2">${err.message}</p>
+        `, true)
+      }
+    }
+    
+    async function listUsers() {
+      log('尝试获取用户列表...')
+      showResult('usersResult', `
+        <p class="text-blue-600">⚠️ 注意</p>
+        <p class="text-sm mt-2">使用 anon key 无法直接查询用户列表（需要 service_role key）</p>
+        <p class="text-sm mt-2">请在 Supabase 控制台查看:</p>
+        <p class="text-sm mt-1">→ <a href="https://supabase.com/dashboard/project/yospqbbeykizesujlhiq/auth/users" target="_blank" class="text-blue-600 underline">Authentication → Users</a></p>
+        <p class="text-sm mt-3">或者尝试登录刚注册的账号来验证注册是否成功</p>
+      `)
+    }
+    
+    // 页面加载时自动测试连接
+    window.addEventListener('load', () => {
+      log('诊断工具已加载')
+      testConnection()
+    })
+  </script>
+</body>
+</html>
+
