@@ -251,3 +251,56 @@ function showToast(message) {
 // 页面加载时初始化购物车
 window.addEventListener('load', loadCart);
 
+// 显示订单弹窗
+window.showOrdersModal = function() {
+  // 移除旧弹窗
+  const oldModal = document.querySelector('.orders-modal');
+  if (oldModal) {
+    oldModal.remove();
+  }
+  
+  const modal = document.createElement('div');
+  modal.className = 'orders-modal fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50';
+  
+  modal.innerHTML = `
+    <div class="bg-paper rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="sticky top-0 bg-ochre/10 border-b border-ochre/20 p-6 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-ochre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="font-serif text-2xl text-ink">我的订单</h3>
+        </div>
+        <button type="button" class="close-modal w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 flex items-center justify-center text-stone-600">✕</button>
+      </div>
+      
+      <div class="p-6">
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-stone-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <p class="text-xl font-medium text-ink mb-2">您还没有下单</p>
+          <p class="text-indigo/70 mb-6">完成购物车结算后，订单会显示在这里</p>
+          <button type="button" class="close-modal px-6 py-3 rounded-full bg-ochre text-white hover:bg-ochre/90 transition shadow-lg">去购物</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // 绑定关闭事件
+  modal.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.remove();
+    });
+  });
+  
+  // 点击背景关闭
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+}
+

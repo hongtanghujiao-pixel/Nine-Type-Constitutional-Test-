@@ -14,6 +14,13 @@
   let currentSlide = 0;
   let carouselTimer = null;
 
+  // 触摸滑动相关变量
+  let touchStartX = 0;
+  let touchEndX = 0;
+  let touchStartY = 0;
+  let touchEndY = 0;
+  let isSwiping = false;
+
   function showSlide(index) {
     currentSlide = (index + slides.length) % slides.length;
     if (slidesWrapper) {
@@ -29,6 +36,10 @@
     showSlide(currentSlide + 1);
   }
 
+  function prevSlide() {
+    showSlide(currentSlide - 1);
+  }
+
   function startCarousel() {
     stopCarousel();
     carouselTimer = setInterval(nextSlide, 5000);
@@ -39,6 +50,53 @@
     carouselTimer = null;
   }
 
+  // 处理触摸滑动
+  function handleTouchStart(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    isSwiping = true;
+    stopCarousel(); // 触摸时停止自动播放
+  }
+
+  function handleTouchMove(e) {
+    if (!isSwiping) return;
+    touchEndX = e.touches[0].clientX;
+    touchEndY = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd() {
+    if (!isSwiping) return;
+    isSwiping = false;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // 判断是否为水平滑动（水平距离大于垂直距离）
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      // 滑动距离超过50px才触发切换
+      if (Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+          // 向右滑动，显示上一张
+          prevSlide();
+        } else {
+          // 向左滑动，显示下一张
+          nextSlide();
+        }
+      }
+    }
+    
+    // 重新启动自动播放
+    startCarousel();
+  }
+
+  // 绑定触摸事件
+  if (slidesWrapper) {
+    slidesWrapper.addEventListener('touchstart', handleTouchStart, { passive: true });
+    slidesWrapper.addEventListener('touchmove', handleTouchMove, { passive: true });
+    slidesWrapper.addEventListener('touchend', handleTouchEnd);
+  }
+
+  // 点击圆点切换
   dots.forEach((dot, i) => {
     dot.addEventListener('click', () => {
       showSlide(i);
@@ -338,6 +396,21 @@
 
     showSection('result');
     renderProducts(mainId, adjustmentLevel);
+    
+    // 初始化AI咨询模块
+    if (window.initAIConsultation) {
+      window.initAIConsultation({
+        type: main.name,
+        description: main.desc,
+        features: main.features,
+        cause: main.cause,
+        risks: main.risks,
+        principle: main.principle,
+        foods: main.foods,
+        dietRecommend: main.dietRecommend
+      });
+    }
+    
     document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 

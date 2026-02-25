@@ -43,44 +43,132 @@ window.addEventListener('load', checkUser);
 
 // 右上角注册
 window.handleHeaderSignUp = async function() {
-    const email = document.getElementById('header-email').value.trim()
-    const password = document.getElementById('header-password').value
-    const msg = document.getElementById('header-auth-msg')
+    showAuthModal('register')
+}
+
+// 右上角登录
+window.handleHeaderSignIn = async function() {
+    showAuthModal('login')
+}
+
+// 显示登录/注册弹窗
+window.showAuthModal = function(mode = 'login') {
+    const modal = document.getElementById('authModal')
+    const title = document.getElementById('authModalTitle')
+    const submitBtn = document.getElementById('authModalSubmitBtn')
+    const switchText = document.getElementById('authModalSwitchText')
+    const switchBtn = document.getElementById('authModalSwitchBtn')
+    const form = document.getElementById('authModalForm')
+    const msgDiv = document.getElementById('modal-auth-msg')
+    
+    // 清空表单和消息
+    document.getElementById('modal-email').value = ''
+    document.getElementById('modal-password').value = ''
+    msgDiv.classList.add('hidden')
+    msgDiv.innerText = ''
+    
+    if (mode === 'login') {
+        title.innerText = '登录'
+        submitBtn.innerText = '登录'
+        switchText.innerText = '还没有账号？'
+        switchBtn.innerText = '立即注册'
+        switchBtn.onclick = () => showAuthModal('register')
+    } else {
+        title.innerText = '注册'
+        submitBtn.innerText = '立即注册'
+        switchText.innerText = '已有账号？'
+        switchBtn.innerText = '立即登录'
+        switchBtn.onclick = () => showAuthModal('login')
+    }
+    
+    // 绑定表单提交
+    form.onsubmit = async (e) => {
+        e.preventDefault()
+        if (mode === 'login') {
+            await handleModalSignIn()
+        } else {
+            await handleModalSignUp()
+        }
+    }
+    
+    modal.classList.remove('hidden')
+}
+
+// 关闭弹窗
+window.closeAuthModal = function() {
+    const modal = document.getElementById('authModal')
+    modal.classList.add('hidden')
+}
+
+// 弹窗登录
+async function handleModalSignIn() {
+    const email = document.getElementById('modal-email').value.trim()
+    const password = document.getElementById('modal-password').value
+    const msgDiv = document.getElementById('modal-auth-msg')
     
     if(!email || !password) { 
-        if(msg) {
-            msg.innerText = "请填写完整"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
+        showModalMessage('请填写完整', 'error')
+        return
+    }
+    
+    showModalMessage('登录中...', 'loading')
+    
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
+        
+        if (error) {
+            console.error('登录错误:', error)
+            
+            let errorMsg = error.message
+            if (error.message.includes('Invalid login credentials')) {
+                errorMsg = "邮箱或密码错误"
+            } else if (error.message.includes('Email not confirmed')) {
+                errorMsg = "邮箱未验证，请先验证邮箱"
+            } else if (error.message.includes('User not found')) {
+                errorMsg = "该邮箱未注册"
+            } else if (error.message.includes('Too many requests')) {
+                errorMsg = "登录尝试过多，请稍后再试"
+            }
+            
+            showModalMessage(errorMsg, 'error')
+        } else {
+            console.log('登录成功:', data)
+            showModalMessage('登录成功！', 'success')
+            setTimeout(() => {
+                closeAuthModal()
+                checkUser()
+            }, 1000)
         }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
-        return; 
+    } catch (err) {
+        console.error('登录异常:', err)
+        showModalMessage('登录失败，请稍后重试', 'error')
+    }
+}
+
+// 弹窗注册
+async function handleModalSignUp() {
+    const email = document.getElementById('modal-email').value.trim()
+    const password = document.getElementById('modal-password').value
+    const msgDiv = document.getElementById('modal-auth-msg')
+    
+    if(!email || !password) { 
+        showModalMessage('请填写完整', 'error')
+        return
     }
     
     // 验证邮箱格式
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-        if(msg) {
-            msg.innerText = "请输入有效的邮箱地址"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-        }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
+    if (!email.includes('@') || !email.includes('.') || email.length < 5) {
+        showModalMessage('请输入有效的邮箱地址（例如：user@example.com）', 'error')
         return
     }
     
     // 验证密码长度
     if (password.length < 6) {
-        if(msg) {
-            msg.innerText = "密码至少需要6个字符"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-        }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
+        showModalMessage('密码至少需要6个字符', 'error')
         return
     }
     
-    if(msg) {
-        msg.innerText = "注册中..."
-        msg.className = "text-xs text-blue-600 absolute top-full right-4 mt-1"
-    }
+    showModalMessage('注册中...', 'loading')
     
     try {
         const { data, error } = await supabaseClient.auth.signUp({ 
@@ -97,7 +185,6 @@ window.handleHeaderSignUp = async function() {
         if (error) {
             console.error('注册错误:', error)
             
-            // 翻译常见错误信息
             let errorMsg = error.message
             if (error.message.includes('User already registered')) {
                 errorMsg = "该邮箱已被注册，请直接登录"
@@ -111,49 +198,55 @@ window.handleHeaderSignUp = async function() {
                 errorMsg = "发送邮件过于频繁，请稍后再试"
             }
             
-            if(msg) {
-                msg.innerText = errorMsg
-                msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-            }
-            setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
+            showModalMessage(errorMsg, 'error')
         } else {
             console.log('注册成功:', data)
             
-            // 检查是否需要邮箱验证
             if (data.user && data.user.identities && data.user.identities.length === 0) {
-                // 邮箱已存在但未验证
-                showRegistrationModal('邮箱已注册但未验证', 
-                    '该邮箱已注册但尚未验证。我们已重新发送验证邮件，请查收邮箱（包括垃圾箱）并点击验证链接。', 
-                    'warning')
+                showModalMessage('邮箱已注册但未验证，请查收验证邮件', 'warning')
             } else if (data.user && !data.session) {
-                // 需要邮箱验证
-                showRegistrationModal('注册成功！', 
-                    '我们已向您的邮箱发送验证链接。请查收邮件（可能在垃圾箱中）并点击链接完成验证。验证后即可登录使用。', 
-                    'success')
+                showModalMessage('注册成功！请查收邮箱验证链接', 'success')
+                setTimeout(() => {
+                    closeAuthModal()
+                }, 2000)
             } else {
-                // 直接注册成功（无需验证）
-                showRegistrationModal('注册成功！', 
-                    '您已成功注册并登录，现在可以开始使用所有功能。', 
-                    'success')
-                checkUser() // 刷新界面状态
+                showModalMessage('注册成功！正在登录...', 'success')
+                setTimeout(() => {
+                    closeAuthModal()
+                    checkUser()
+                }, 1000)
             }
-            
-            if(msg) msg.innerText = ""
-            // 清空输入框
-            document.getElementById('header-email').value = ''
-            document.getElementById('header-password').value = ''
         }
     } catch (err) {
         console.error('注册异常:', err)
-        if(msg) {
-            msg.innerText = "注册失败，请稍后重试"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-        }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
+        showModalMessage('注册失败，请稍后重试', 'error')
     }
 }
 
-// 显示注册结果弹窗
+// 显示弹窗消息
+function showModalMessage(message, type = 'info') {
+    const msgDiv = document.getElementById('modal-auth-msg')
+    msgDiv.classList.remove('hidden')
+    msgDiv.innerText = message
+    
+    // 移除所有样式类
+    msgDiv.className = 'p-3 rounded-xl text-sm'
+    
+    // 根据类型添加样式
+    if (type === 'error') {
+        msgDiv.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-700')
+    } else if (type === 'success') {
+        msgDiv.classList.add('bg-green-50', 'border', 'border-green-200', 'text-green-700')
+    } else if (type === 'warning') {
+        msgDiv.classList.add('bg-yellow-50', 'border', 'border-yellow-200', 'text-yellow-700')
+    } else if (type === 'loading') {
+        msgDiv.classList.add('bg-blue-50', 'border', 'border-blue-200', 'text-blue-700')
+    } else {
+        msgDiv.classList.add('bg-stone-50', 'border', 'border-stone-200', 'text-stone-700')
+    }
+}
+
+// 显示注册结果弹窗（保留原有功能）
 function showRegistrationModal(title, message, type = 'success') {
     const modal = document.createElement('div')
     modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50'
@@ -213,67 +306,7 @@ function showRegistrationModal(title, message, type = 'success') {
 
 // 右上角登录
 window.handleHeaderSignIn = async function() {
-    const email = document.getElementById('header-email').value.trim()
-    const password = document.getElementById('header-password').value
-    const msg = document.getElementById('header-auth-msg')
-    
-    if(!email || !password) { 
-        if(msg) {
-            msg.innerText = "请填写完整"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-        }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 3000)
-        return; 
-    }
-    
-    if(msg) {
-        msg.innerText = "登录中..."
-        msg.className = "text-xs text-blue-600 absolute top-full right-4 mt-1"
-    }
-    
-    try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
-        
-        if (error) {
-            console.error('登录错误:', error)
-            
-            // 翻译常见错误信息
-            let errorMsg = error.message
-            if (error.message.includes('Invalid login credentials')) {
-                errorMsg = "邮箱或密码错误"
-            } else if (error.message.includes('Email not confirmed')) {
-                errorMsg = "邮箱未验证，请先验证邮箱"
-            } else if (error.message.includes('User not found')) {
-                errorMsg = "该邮箱未注册"
-            } else if (error.message.includes('Too many requests')) {
-                errorMsg = "登录尝试过多，请稍后再试"
-            }
-            
-            if(msg) {
-                msg.innerText = errorMsg
-                msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-            }
-            setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
-        } else {
-            console.log('登录成功:', data)
-            if(msg) {
-                msg.innerText = "登录成功！"
-                msg.className = "text-xs text-green-600 absolute top-full right-4 mt-1"
-            }
-            setTimeout(() => { if(msg) msg.innerText = "" }, 2000)
-            checkUser() // 刷新界面状态
-            // 清空输入框
-            document.getElementById('header-email').value = ''
-            document.getElementById('header-password').value = ''
-        }
-    } catch (err) {
-        console.error('登录异常:', err)
-        if(msg) {
-            msg.innerText = "登录失败，请稍后重试"
-            msg.className = "text-xs text-red-600 absolute top-full right-4 mt-1"
-        }
-        setTimeout(() => { if(msg) msg.innerText = "" }, 5000)
-    }
+    showAuthModal('login')
 }
 
 // 注册（保留兼容性）
