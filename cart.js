@@ -24,15 +24,30 @@ function saveCart() {
 // 更新购物车数量显示
 function updateCartCount() {
   const countEl = document.getElementById('cart-count');
-  if (!countEl) return;
+  const mobileCountEl = document.getElementById('mobile-cart-count');
   
   const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
   
-  if (totalItems > 0) {
-    countEl.textContent = totalItems;
-    countEl.classList.remove('hidden');
-  } else {
-    countEl.classList.add('hidden');
+  // 更新桌面端购物车数量
+  if (countEl) {
+    if (totalItems > 0) {
+      countEl.textContent = totalItems;
+      countEl.classList.remove('hidden');
+    } else {
+      countEl.classList.add('hidden');
+    }
+  }
+  
+  // 更新移动端购物车数量
+  if (mobileCountEl) {
+    if (totalItems > 0) {
+      mobileCountEl.textContent = totalItems;
+      mobileCountEl.classList.remove('hidden');
+      mobileCountEl.classList.add('flex');
+    } else {
+      mobileCountEl.classList.add('hidden');
+      mobileCountEl.classList.remove('flex');
+    }
   }
 }
 

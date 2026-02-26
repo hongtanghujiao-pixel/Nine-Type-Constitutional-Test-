@@ -7,6 +7,30 @@
   const QUESTIONS_PER_STEP = 3;
   const TOTAL = QUESTIONS.length;
 
+  // ---------- 移动端菜单 ----------
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 点击菜单链接后关闭菜单
+    document.querySelectorAll('.mobile-menu-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+    
+    // 点击页面其他地方关闭菜单
+    document.addEventListener('click', (e) => {
+      if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+  }
+
   // ---------- 轮播 ----------
   const slidesWrapper = document.querySelector('.hero-slides-wrapper');
   const slides = document.querySelectorAll('.hero-slide');
@@ -397,6 +421,9 @@
     showSection('result');
     renderProducts(mainId, adjustmentLevel);
     
+    // 填充养生调理建议
+    renderHealthAdvice(main);
+    
     // 初始化AI咨询模块
     if (window.initAIConsultation) {
       window.initAIConsultation({
@@ -411,7 +438,45 @@
       });
     }
     
-    document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 不自动滚动，让用户停留在测试结果页面慢慢查看
+    // document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** 填充养生调理建议 */
+  function renderHealthAdvice(constitution) {
+    if (!constitution.healthAdvice) return;
+    
+    const advice = constitution.healthAdvice;
+    
+    // 填充起居作息
+    const sleepEl = document.getElementById('adviceSleep');
+    if (sleepEl && advice.sleep) {
+      sleepEl.innerHTML = `<p>${advice.sleep}</p>`;
+    }
+    
+    // 填充经络穴位调理
+    const acupointEl = document.getElementById('adviceAcupoint');
+    if (acupointEl && advice.acupoint) {
+      acupointEl.innerHTML = `<p>${advice.acupoint}</p>`;
+    }
+    
+    // 填充运动养生
+    const exerciseEl = document.getElementById('adviceExercise');
+    if (exerciseEl && advice.exercise) {
+      exerciseEl.innerHTML = `<p>${advice.exercise}</p>`;
+    }
+    
+    // 填充情志调养
+    const moodEl = document.getElementById('adviceMood');
+    if (moodEl && advice.mood) {
+      moodEl.innerHTML = `<p>${advice.mood}</p>`;
+    }
+    
+    // 填充环境调摄
+    const environmentEl = document.getElementById('adviceEnvironment');
+    if (environmentEl && advice.environment) {
+      environmentEl.innerHTML = `<p>${advice.environment}</p>`;
+    }
   }
 
   /** 显示调理程度建议 */
@@ -471,10 +536,7 @@
               <span class="text-sm px-3 py-1 rounded-full ${config.badgeColor} font-medium">得分：${score}</span>
             </div>
             <p class="${config.textColor} mb-3">${config.description}</p>
-            <p class="${config.textColor} font-medium mb-4">${config.recommendation}</p>
-            <button type="button" class="adjustment-action-btn px-6 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition" data-level="${level}">
-              ${config.action}
-            </button>
+            <p class="${config.textColor} font-medium">${config.recommendation}</p>
           </div>
         </div>
       </div>

@@ -18,21 +18,40 @@ console.log('Supabase 客户端已初始化')
 // 检查登录状态并切换显示（右上角）
 async function checkUser() {
     const { data: { user } } = await supabaseClient.auth.getUser()
+    
+    // 桌面端元素
     const loginForm = document.getElementById('header-login-form')
     const userPanel = document.getElementById('header-user-panel')
+    
+    // 移动端元素
+    const mobileLoginForm = document.getElementById('mobile-login-form')
+    const mobileUserPanel = document.getElementById('mobile-user-panel')
     
     // 防止页面还没加载完找不到元素报错
     if (!loginForm || !userPanel) return;
 
     if (user) {
+        // 桌面端
         loginForm.classList.add('hidden')
         userPanel.classList.remove('hidden')
-        // 更新显示的邮箱
         const emailSpan = document.getElementById('header-user-email')
         if(emailSpan) emailSpan.innerText = user.email
+        
+        // 移动端
+        if (mobileLoginForm) mobileLoginForm.classList.add('hidden')
+        if (mobileUserPanel) {
+            mobileUserPanel.classList.remove('hidden')
+            const mobileEmailSpan = document.getElementById('mobile-user-email')
+            if(mobileEmailSpan) mobileEmailSpan.innerText = user.email
+        }
     } else {
+        // 桌面端
         loginForm.classList.remove('hidden')
         userPanel.classList.add('hidden')
+        
+        // 移动端
+        if (mobileLoginForm) mobileLoginForm.classList.remove('hidden')
+        if (mobileUserPanel) mobileUserPanel.classList.add('hidden')
     }
 }
 

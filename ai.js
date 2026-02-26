@@ -1,5 +1,14 @@
 // ai.js - AI 中医顾问功能
 
+// ==================== API 配置 ====================
+const AI_CONFIG = {
+    apiKey: 'sk-t1fEKFpgmjj3FjY3hTD3ydecgtNwAhqEs0Re7Ep7zDgCQhT9',
+    baseURL: 'https://api.silra.cn/v1',
+    model: 'deepseek-chat', // 可选：deepseek-chat 或 Qwen3-235B-A22B
+    maxTokens: 2000,
+    temperature: 0.7
+};
+
 // 存储当前用户的体质信息
 let currentConstitution = {
     type: '',
@@ -10,6 +19,16 @@ let currentConstitution = {
     principle: '',
     foods: ''
 };
+
+// 存储用户个人信息
+let userProfile = {
+    age: '',
+    gender: '',
+    tastePreference: ''
+};
+
+// 存储对话历史
+let conversationHistory = [];
 
 // 体质ID到中文名称的映射
 const constitutionNames = {
@@ -37,6 +56,9 @@ window.selectConstitution = function(constitutionId) {
         }
     });
     
+    // 获取用户个人信息
+    updateUserProfile();
+    
     // 从data.js获取体质数据
     if (window.CONSTITUTION_DATA && window.CONSTITUTION_DATA[constitutionId]) {
         const data = window.CONSTITUTION_DATA[constitutionId];
@@ -52,6 +74,35 @@ window.selectConstitution = function(constitutionId) {
             risks: data.risks
         };
         
+        // 重置对话历史
+        conversationHistory = [];
+        
+        // 构建欢迎消息
+        let welcomeMsg = `您好！我已了解您是<strong>${data.name}</strong>。`;
+        
+        // 添加个人信息到欢迎消息
+        if (userProfile.age || userProfile.gender || userProfile.tastePreference) {
+            welcomeMsg += '<br/>根据您提供的信息：';
+            if (userProfile.age) welcomeMsg += `年龄${userProfile.age}岁`;
+            if (userProfile.gender) {
+                const genderText = userProfile.gender === 'male' ? '男性' : '女性';
+                welcomeMsg += `、${genderText}`;
+            }
+            if (userProfile.tastePreference) {
+                const tasteMap = {
+                    'light': '清淡口味',
+                    'spicy': '偏辣口味',
+                    'sweet': '偏甜口味',
+                    'salty': '偏咸口味',
+                    'sour': '偏酸口味'
+                };
+                welcomeMsg += `、${tasteMap[userProfile.tastePreference]}`;
+            }
+            welcomeMsg += '，我会为您提供更个性化的建议。';
+        }
+        
+        welcomeMsg += '<br/>我可以为您解答关于饮食、运动、养生等方面的问题。请随时提问！';
+        
         // 清空对话框并显示新的欢迎消息
         const chatBox = document.getElementById('aiChatBox');
         if (chatBox) {
@@ -61,7 +112,7 @@ window.selectConstitution = function(constitutionId) {
                         <span class="text-sm">🤖</span>
                     </div>
                     <div class="flex-1 bg-mist/80 rounded-2xl rounded-tl-none p-3">
-                        <p class="text-sm text-ink">您好！我已了解您是<strong>${data.name}</strong>。我可以为您解答关于饮食、运动、养生等方面的问题。请随时提问！</p>
+                        <p class="text-sm text-ink">${welcomeMsg}</p>
                     </div>
                 </div>
             `;
@@ -69,9 +120,25 @@ window.selectConstitution = function(constitutionId) {
     }
 }
 
+// 更新用户个人信息
+function updateUserProfile() {
+    const ageInput = document.getElementById('userAge');
+    const genderSelect = document.getElementById('userGender');
+    const tasteSelect = document.getElementById('userTastePreference');
+    
+    userProfile = {
+        age: ageInput ? ageInput.value : '',
+        gender: genderSelect ? genderSelect.value : '',
+        tastePreference: tasteSelect ? tasteSelect.value : ''
+    };
+}
+
 // 初始化AI模块（在显示测试结果时调用）
 window.initAIConsultation = function(constitutionData) {
     currentConstitution = constitutionData;
+    
+    // 重置对话历史
+    conversationHistory = [];
     
     // 更新AI欢迎消息中的体质类型
     const constitutionTypeSpan = document.getElementById('aiConstitutionType');
@@ -90,87 +157,113 @@ window.initAIConsultation = function(constitutionData) {
     }
 }
 
-// 发送问题给AI
-window.askAI = async function(predefinedQuestion = null) {
-    const input = document.getElementById('aiQuestionInput');
-    const question = predefinedQuestion || input.value.trim();
-    
-    if (!question) {
-        return;
+// 调用真实AI API
+async function callAIAPI(userMessage) {
+    try {
+        // 构建个人信息描述
+        let profileInfo = '';
+        if (userProfile.age || userProfile.gender || userProfile.tastePreference) {
+            profileInfo = '\n\n用户个人信息：';
+            if (userProfile.age) profileInfo += `\n- 年龄：${userProfile.age}岁`;
+            if (userProfile.gender) {
+                const genderText = userProfile.gender === 'male' ? '男性' : '女性';
+                profileInfo += `\n- 性别：${genderText}`;
+            }
+            if (userProfile.tastePreference) {
+                const tasteMap = {
+                    'light': '清淡口味',
+                    'spicy': '偏辣口味',
+                    'sweet': '偏甜口味',
+                    'salty': '偏咸口味',
+                    'sour': '偏酸口味'
+                };
+                profileInfo += `\n- 口味偏好：${tasteMap[userProfile.tastePreference]}`;
+            }
+        }
+        
+        // 构建系统提示词
+        const systemPrompt = `你是一位专业的中医养生顾问，精通中医体质理论和养生调理方法。
+
+当前用户的体质信息：
+- 体质类型：${currentConstitution.type}
+- 体质描述：${currentConstitution.description}
+- 体质特征：${currentConstitution.features}
+- 调理原则：${currentConstitution.principle}
+- 推荐食物：${currentConstitution.foods}
+- 饮食建议：${currentConstitution.dietRecommend}${profileInfo}
+
+请基于以上体质信息和用户个人信息，为用户提供专业、实用的中医养生建议。回答要求：
+1. 语言通俗易懂，避免过于专业的术语
+2. 建议具体可行，贴近日常生活
+3. 如果用户提供了年龄、性别或口味偏好，请在建议中考虑这些因素
+4. 针对不同年龄段给出适合的建议（如老年人、中年人、青年人）
+5. 针对不同性别给出针对性建议（如女性经期调理、男性养生等）
+6. 根据口味偏好推荐合适的食材和烹饪方法
+7. 注重安全性，提醒用户必要时咨询专业医师
+8. 回答简洁明了，重点突出
+9. 可以适当使用emoji增加亲和力`;
+
+        // 构建消息历史
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            ...conversationHistory,
+            { role: 'user', content: userMessage }
+        ];
+
+        // 调用API
+        const response = await fetch(`${AI_CONFIG.baseURL}/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${AI_CONFIG.apiKey}`
+            },
+            body: JSON.stringify({
+                model: AI_CONFIG.model,
+                messages: messages,
+                max_tokens: AI_CONFIG.maxTokens,
+                temperature: AI_CONFIG.temperature,
+                stream: false
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        }
+
+        const data = await response.json();
+        
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            throw new Error('API返回数据格式错误');
+        }
+
+        const aiResponse = data.choices[0].message.content;
+
+        // 保存对话历史（限制历史长度，避免token过多）
+        conversationHistory.push(
+            { role: 'user', content: userMessage },
+            { role: 'assistant', content: aiResponse }
+        );
+
+        // 只保留最近10轮对话
+        if (conversationHistory.length > 20) {
+            conversationHistory = conversationHistory.slice(-20);
+        }
+
+        return aiResponse;
+
+    } catch (error) {
+        console.error('AI API调用失败:', error);
+        
+        // 返回友好的错误提示和降级方案
+        return `抱歉，AI服务暂时无法响应（${error.message}）。<br/><br/>
+                作为备选，这里是一些基于您的<strong>${currentConstitution.type}</strong>的基本建议：<br/><br/>
+                ${getFallbackResponse(userMessage)}`;
     }
-    
-    // 检查是否已选择体质
-    if (!currentConstitution.type) {
-        addMessageToChat('ai', '请先选择您的体质类型，或者<a href="#test" class="text-ochre hover:underline">完成体质测试</a>后再提问。');
-        return;
-    }
-    
-    // 清空输入框
-    if (!predefinedQuestion) {
-        input.value = '';
-    }
-    
-    // 显示用户问题
-    addMessageToChat('user', question);
-    
-    // 显示"正在思考"动画
-    const thinkingId = addMessageToChat('ai', '<span class="ai-typing">正在思考...</span>');
-    
-    // 模拟AI响应（这里使用本地知识库，你也可以接入真实的AI API）
-    setTimeout(() => {
-        const response = generateAIResponse(question);
-        removeMessage(thinkingId);
-        addMessageToChat('ai', response);
-    }, 1000 + Math.random() * 1000);
 }
 
-// 添加消息到聊天框
-function addMessageToChat(sender, content) {
-    const chatBox = document.getElementById('aiChatBox');
-    const messageId = 'msg-' + Date.now();
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.id = messageId;
-    messageDiv.className = 'flex gap-3';
-    
-    if (sender === 'user') {
-        messageDiv.innerHTML = `
-            <div class="flex-1 flex justify-end">
-                <div class="bg-ochre/15 rounded-2xl rounded-tr-none p-3 max-w-[80%]">
-                    <p class="text-sm text-ink">${content}</p>
-                </div>
-            </div>
-            <div class="w-8 h-8 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
-                <span class="text-sm">👤</span>
-            </div>
-        `;
-    } else {
-        messageDiv.innerHTML = `
-            <div class="w-8 h-8 rounded-full bg-ochre/20 flex items-center justify-center flex-shrink-0">
-                <span class="text-sm">🤖</span>
-            </div>
-            <div class="flex-1 bg-mist/80 rounded-2xl rounded-tl-none p-3">
-                <p class="text-sm text-ink">${content}</p>
-            </div>
-        `;
-    }
-    
-    chatBox.appendChild(messageDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
-    return messageId;
-}
-
-// 移除消息
-function removeMessage(messageId) {
-    const message = document.getElementById(messageId);
-    if (message) {
-        message.remove();
-    }
-}
-
-// 生成AI响应（基于本地知识库）
-function generateAIResponse(question) {
+// 降级响应（当API失败时使用本地知识库）
+function getFallbackResponse(question) {
     const q = question.toLowerCase();
     const type = currentConstitution.type;
     
@@ -264,29 +357,105 @@ function generateAIResponse(question) {
         return `<strong>💡 ${type}的生活建议：</strong><br/>${kb.lifestyle}`;
     }
     
-    if (q.includes('症状') || q.includes('表现') || q.includes('特征')) {
-        return `<strong>📋 ${type}的特征：</strong><br/>${currentConstitution.features || '暂无详细信息'}`;
-    }
-    
-    if (q.includes('原因') || q.includes('为什么') || q.includes('成因')) {
-        return `<strong>💭 ${type}的形成原因：</strong><br/>${currentConstitution.cause || '暂无详细信息'}`;
-    }
-    
-    if (q.includes('调理') || q.includes('改善') || q.includes('治疗')) {
-        return `<strong>⚕️ ${type}的调理建议：</strong><br/>${currentConstitution.principle || '暂无详细信息'}<br/><br/><strong>推荐食物：</strong>${currentConstitution.foods || '暂无详细信息'}`;
-    }
-    
     // 默认综合回答
     return `<strong>关于${type}的建议：</strong><br/><br/>
             <strong>🥗 饮食：</strong>${kb.diet}<br/><br/>
             <strong>🏃 运动：</strong>${kb.exercise}<br/><br/>
-            <strong>💡 生活：</strong>${kb.lifestyle}<br/><br/>
-            如需更详细的建议，请具体提问，比如"适合吃什么水果"、"如何运动"等。`;
+            <strong>💡 生活：</strong>${kb.lifestyle}`;
+}
+
+// 发送问题给AI
+window.askAI = async function(predefinedQuestion = null) {
+    const input = document.getElementById('aiQuestionInput');
+    const question = predefinedQuestion || input.value.trim();
+    
+    if (!question) {
+        return;
+    }
+    
+    // 检查是否已选择体质
+    if (!currentConstitution.type) {
+        addMessageToChat('ai', '请先选择您的体质类型，或者<a href="#test" class="text-ochre hover:underline">完成体质测试</a>后再提问。');
+        return;
+    }
+    
+    // 清空输入框
+    if (!predefinedQuestion) {
+        input.value = '';
+    }
+    
+    // 显示用户问题
+    addMessageToChat('user', question);
+    
+    // 显示"正在思考"动画
+    const thinkingId = addMessageToChat('ai', '<span class="ai-typing">AI正在思考中...</span>');
+    
+    try {
+        // 调用真实AI API
+        const response = await callAIAPI(question);
+        
+        // 移除"正在思考"消息
+        removeMessage(thinkingId);
+        
+        // 显示AI回复
+        addMessageToChat('ai', response);
+        
+    } catch (error) {
+        console.error('AI响应失败:', error);
+        removeMessage(thinkingId);
+        addMessageToChat('ai', '抱歉，AI服务暂时无法响应，请稍后再试。');
+    }
+}
+
+// 添加消息到聊天框
+function addMessageToChat(sender, content) {
+    const chatBox = document.getElementById('aiChatBox');
+    const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.id = messageId;
+    messageDiv.className = 'flex gap-3 animate-fadeInUp';
+    
+    if (sender === 'user') {
+        messageDiv.innerHTML = `
+            <div class="flex-1 flex justify-end">
+                <div class="bg-ochre/15 rounded-2xl rounded-tr-none p-3 max-w-[80%]">
+                    <p class="text-sm text-ink">${content}</p>
+                </div>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-indigo/20 flex items-center justify-center flex-shrink-0">
+                <span class="text-sm">👤</span>
+            </div>
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="w-8 h-8 rounded-full bg-ochre/20 flex items-center justify-center flex-shrink-0">
+                <span class="text-sm">🤖</span>
+            </div>
+            <div class="flex-1 bg-mist/80 rounded-2xl rounded-tl-none p-3">
+                <div class="text-sm text-ink">${content}</div>
+            </div>
+        `;
+    }
+    
+    chatBox.appendChild(messageDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    return messageId;
+}
+
+// 移除消息
+function removeMessage(messageId) {
+    const message = document.getElementById(messageId);
+    if (message) {
+        message.remove();
+    }
 }
 
 // 导出函数供其他模块使用
 window.AIConsultation = {
     init: initAIConsultation,
-    ask: askAI
+    ask: askAI,
+    selectConstitution: selectConstitution
 };
 
