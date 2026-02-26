@@ -259,14 +259,14 @@
     </div>
     
     <!-- 移动端菜单 -->
-    <div id="mobile-menu" class="hidden md:hidden fixed top-16 left-0 right-0 bg-paper/98 backdrop-blur border-b border-stone-200/80 shadow-lg z-40">
+    <div id="mobile-menu" class="hidden md:hidden fixed top-16 left-0 right-0 bg-paper backdrop-blur-sm border-b border-stone-200 shadow-xl z-40">
       <nav class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-3">
         <a href="#home" class="mobile-menu-link py-2 px-4 rounded-lg text-indigo hover:bg-ochre/10 hover:text-ochre transition">首页</a>
         <a href="#test" class="mobile-menu-link py-2 px-4 rounded-lg text-indigo hover:bg-ochre/10 hover:text-ochre transition">体质测试</a>
         <a href="#ai-consultation" class="mobile-menu-link py-2 px-4 rounded-lg text-indigo hover:bg-ochre/10 hover:text-ochre transition">AI顾问</a>
         <a href="#doctor-consultation" class="mobile-menu-link py-2 px-4 rounded-lg text-indigo hover:bg-ochre/10 hover:text-ochre transition">医生咨询</a>
         
-        <div class="border-t border-stone-200 pt-3 mt-2 flex flex-col gap-3">
+        <div class="border-t border-stone-300 pt-3 mt-2 flex flex-col gap-3">
           <button onclick="showCartModal()" class="mobile-menu-link py-2 px-4 rounded-lg text-indigo hover:bg-ochre/10 hover:text-ochre transition text-left flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -279,16 +279,16 @@
           
           <!-- 移动端登录区域 -->
           <div id="mobile-login-form" class="flex gap-2 px-4">
-            <button onclick="showAuthModal('login')" class="flex-1 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition text-sm">登录</button>
-            <button onclick="showAuthModal('register')" class="flex-1 py-2 rounded-full border border-ochre text-ochre hover:bg-ochre/10 transition text-sm">注册</button>
+            <button onclick="showAuthModal('login')" class="flex-1 py-2 rounded-full bg-ochre text-white hover:bg-ochre/90 transition text-sm font-medium">登录</button>
+            <button onclick="showAuthModal('register')" class="flex-1 py-2 rounded-full border-2 border-ochre text-ochre hover:bg-ochre/10 transition text-sm font-medium">注册</button>
           </div>
           
           <!-- 移动端已登录状态 -->
           <div id="mobile-user-panel" class="hidden px-4 flex flex-col gap-2">
-            <div class="text-sm text-ochre font-medium" id="mobile-user-email"></div>
+            <div class="text-sm text-ochre font-medium truncate" id="mobile-user-email"></div>
             <div class="flex gap-2">
-              <button onclick="showHistoryModal()" class="flex-1 py-2 rounded-full border border-indigo text-indigo hover:bg-indigo/10 transition text-sm">历史记录</button>
-              <button onclick="handleSignOut()" class="flex-1 py-2 rounded-full border border-stone-300 text-indigo hover:bg-stone-100 transition text-sm">退出登录</button>
+              <button onclick="showHistoryModal()" class="flex-1 py-2 rounded-full border-2 border-indigo text-indigo hover:bg-indigo/10 transition text-sm font-medium">历史记录</button>
+              <button onclick="handleSignOut()" class="flex-1 py-2 rounded-full border-2 border-stone-400 text-indigo hover:bg-stone-100 transition text-sm font-medium">退出登录</button>
             </div>
           </div>
         </div>
