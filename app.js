@@ -319,130 +319,169 @@
   }
 
   function computeAndShowResult() {
-    const scores = computeScores();
-    const mainId = getMainConstitution(scores);
-    const main = DATA[mainId];
-    const secondaryIds = getSecondaryConstitutions(scores, mainId);
+    console.log('🔍 开始计算结果...');
     
-    // 判断调理程度（平和质不需要调理程度判断）
-    const mainScore = scores[mainId];
-    const adjustmentLevel = mainId === 'pinghe' ? null : getAdjustmentLevel(mainScore);
-
-    document.getElementById('resultTitle').textContent = main.name;
-    document.getElementById('resultDesc').textContent = main.desc;
-    const dietEl = document.getElementById('resultDietRecommend');
-    if (dietEl && main.dietRecommend) dietEl.textContent = main.dietRecommend;
-    document.getElementById('resultFeatures').textContent = main.features;
-    document.getElementById('resultCause').textContent = main.cause;
-    document.getElementById('resultRisks').textContent = main.risks;
-    
-    // 显示调理程度建议
-    displayAdjustmentRecommendation(mainId, mainScore, adjustmentLevel);
-
-    const secondaryEl = document.getElementById('resultSecondary');
-    if (secondaryEl) {
-      if (secondaryIds.length) {
-        secondaryEl.classList.remove('hidden');
-        secondaryEl.querySelector('.result-secondary-list').textContent = secondaryIds
-          .map((id) => DATA[id].name)
-          .join('、');
-      } else {
-        secondaryEl.classList.add('hidden');
-      }
-    }
-
-    const labels = constitutionIds.map((id) => DATA[id].name);
-    const values = constitutionIds.map((id) => scores[id] ?? 0);
-
-    const canvas = document.getElementById('radarChart');
-    const ctx = canvas.getContext('2d');
-    if (radarChartInstance) radarChartInstance.destroy();
-    radarChartInstance = new Chart(ctx, {
-      type: 'radar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: '体质得分',
-            data: values,
-            backgroundColor: 'rgba(166, 124, 82, 0.2)',
-            borderColor: 'rgb(166, 124, 82)',
-            borderWidth: 2,
-            pointBackgroundColor: 'rgb(166, 124, 82)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(166, 124, 82)',
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        scales: {
-          r: {
-            min: 0,
-            max: 100,
-            ticks: { stepSize: 25 },
-            pointLabels: { font: { size: 11 } },
-          },
-        },
-        plugins: {
-          legend: { display: false },
-        },
-      },
-    });
-
-    // 先显示结果，再异步保存
-    showSection('result');
-    renderProducts(mainId, adjustmentLevel);
-    
-    // 填充养生调理建议
-    renderHealthAdvice(main);
-    
-    // 初始化AI咨询模块
-    if (window.initAIConsultation) {
-      window.initAIConsultation({
-        type: main.name,
-        description: main.desc,
-        features: main.features,
-        cause: main.cause,
-        risks: main.risks,
-        principle: main.principle,
-        foods: main.foods,
-        dietRecommend: main.dietRecommend
-      });
-    }
-    
-    // 异步保存测试结果到 Supabase（不阻塞界面）
-    if (window.saveUserResult) {
-      const testResult = {
-        timestamp: new Date().toISOString(),
-        constitution: main.name,
-        constitutionId: mainId,
-        description: main.desc,
-        scores: scores,
-        adjustmentLevel: adjustmentLevel,
-        secondaryConstitutions: secondaryIds.map(id => DATA[id].name),
-        dietRecommend: main.dietRecommend,
-        features: main.features,
-        cause: main.cause,
-        risks: main.risks,
-        principle: main.principle,
-        foods: main.foods
-      };
+    try {
+      const scores = computeScores();
+      console.log('✅ 得分计算完成:', scores);
       
-      // 使用 setTimeout 确保完全异步，不阻塞界面
-      setTimeout(() => {
-        window.saveUserResult(testResult).then(success => {
-          if (success) {
-            console.log('✅ 测试结果已保存到云端');
-          } else {
-            console.log('ℹ️ 测试结果未保存（可能未登录或网络问题）');
-          }
-        }).catch(err => {
-          console.error('保存测试结果时出错:', err);
+      const mainId = getMainConstitution(scores);
+      console.log('✅ 主体质:', mainId);
+      
+      const main = DATA[mainId];
+      if (!main) {
+        console.error('❌ 找不到体质数据:', mainId);
+        alert('体质数据加载失败，请刷新页面重试');
+        return;
+      }
+      console.log('✅ 体质数据:', main);
+      
+      const secondaryIds = getSecondaryConstitutions(scores, mainId);
+      console.log('✅ 兼夹体质:', secondaryIds);
+    
+      // 判断调理程度（平和质不需要调理程度判断）
+      const mainScore = scores[mainId];
+      const adjustmentLevel = mainId === 'pinghe' ? null : getAdjustmentLevel(mainScore);
+      console.log('✅ 调理程度:', adjustmentLevel);
+
+      console.log('🎨 开始填充结果页面...');
+      document.getElementById('resultTitle').textContent = main.name;
+      document.getElementById('resultDesc').textContent = main.desc;
+      const dietEl = document.getElementById('resultDietRecommend');
+      if (dietEl && main.dietRecommend) dietEl.textContent = main.dietRecommend;
+      document.getElementById('resultFeatures').textContent = main.features;
+      document.getElementById('resultCause').textContent = main.cause;
+      document.getElementById('resultRisks').textContent = main.risks;
+      console.log('✅ 基本信息填充完成');
+      
+      // 显示调理程度建议
+      displayAdjustmentRecommendation(mainId, mainScore, adjustmentLevel);
+      console.log('✅ 调理建议显示完成');
+
+      const secondaryEl = document.getElementById('resultSecondary');
+      if (secondaryEl) {
+        if (secondaryIds.length) {
+          secondaryEl.classList.remove('hidden');
+          secondaryEl.querySelector('.result-secondary-list').textContent = secondaryIds
+            .map((id) => DATA[id].name)
+            .join('、');
+        } else {
+          secondaryEl.classList.add('hidden');
+        }
+      }
+      console.log('✅ 兼夹体质显示完成');
+
+      console.log('📊 开始绘制雷达图...');
+      const labels = constitutionIds.map((id) => DATA[id].name);
+      const values = constitutionIds.map((id) => scores[id] ?? 0);
+
+      const canvas = document.getElementById('radarChart');
+      const ctx = canvas.getContext('2d');
+      if (radarChartInstance) radarChartInstance.destroy();
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: '体质得分',
+              data: values,
+              backgroundColor: 'rgba(166, 124, 82, 0.2)',
+              borderColor: 'rgb(166, 124, 82)',
+              borderWidth: 2,
+              pointBackgroundColor: 'rgb(166, 124, 82)',
+              pointBorderColor: '#fff',
+              pointHoverBackgroundColor: '#fff',
+              pointHoverBorderColor: 'rgb(166, 124, 82)',
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              min: 0,
+              max: 100,
+              ticks: { stepSize: 25 },
+              pointLabels: { font: { size: 11 } },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+          },
+        },
+      });
+      console.log('✅ 雷达图绘制完成');
+
+      // 先显示结果，再异步保存
+      console.log('🎉 显示结果页面...');
+      showSection('result');
+      console.log('✅ 结果页面已显示');
+      
+      console.log('🛍️ 渲染产品推荐...');
+      renderProducts(mainId, adjustmentLevel);
+      console.log('✅ 产品推荐完成');
+      
+      // 填充养生调理建议
+      console.log('🌿 填充养生建议...');
+      renderHealthAdvice(main);
+      console.log('✅ 养生建议完成');
+      
+      // 初始化AI咨询模块
+      if (window.initAIConsultation) {
+        console.log('🤖 初始化AI咨询...');
+        window.initAIConsultation({
+          type: main.name,
+          description: main.desc,
+          features: main.features,
+          cause: main.cause,
+          risks: main.risks,
+          principle: main.principle,
+          foods: main.foods,
+          dietRecommend: main.dietRecommend
         });
-      }, 100);
+        console.log('✅ AI咨询初始化完成');
+      }
+      
+      // 异步保存测试结果到 Supabase（不阻塞界面）
+      if (window.saveUserResult) {
+        const testResult = {
+          timestamp: new Date().toISOString(),
+          constitution: main.name,
+          constitutionId: mainId,
+          description: main.desc,
+          scores: scores,
+          adjustmentLevel: adjustmentLevel,
+          secondaryConstitutions: secondaryIds.map(id => DATA[id].name),
+          dietRecommend: main.dietRecommend,
+          features: main.features,
+          cause: main.cause,
+          risks: main.risks,
+          principle: main.principle,
+          foods: main.foods
+        };
+        
+        // 使用 setTimeout 确保完全异步，不阻塞界面
+        setTimeout(() => {
+          window.saveUserResult(testResult).then(success => {
+            if (success) {
+              console.log('✅ 测试结果已保存到云端');
+            } else {
+              console.log('ℹ️ 测试结果未保存（可能未登录或网络问题）');
+            }
+          }).catch(err => {
+            console.error('保存测试结果时出错:', err);
+          });
+        }, 100);
+      }
+      
+      console.log('🎊 所有操作完成！');
+      
+    } catch (error) {
+      console.error('❌ 计算结果时出错:', error);
+      alert('计算结果时出错，请刷新页面重试。错误信息：' + error.message);
+      showSection('intro');
     }
     
     // 不自动滚动，让用户停留在测试结果页面慢慢查看
@@ -548,13 +587,6 @@
         </div>
       </div>
     `;
-    
-    // 绑定按钮事件
-    const actionBtn = container.querySelector('.adjustment-action-btn');
-    actionBtn.addEventListener('click', function() {
-      const level = this.dataset.level;
-      handleAdjustmentAction(level, constitutionId);
-    });
   }
 
   /** 处理调理建议按钮点击 */
