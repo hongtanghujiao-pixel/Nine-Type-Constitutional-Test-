@@ -392,32 +392,7 @@
       },
     });
 
-    // 保存测试结果到 Supabase
-    if (window.saveUserResult) {
-      const testResult = {
-        timestamp: new Date().toISOString(),
-        constitution: main.name,
-        constitutionId: mainId,
-        description: main.desc,
-        scores: scores,
-        adjustmentLevel: adjustmentLevel,
-        secondaryConstitutions: secondaryIds.map(id => DATA[id].name),
-        dietRecommend: main.dietRecommend,
-        features: main.features,
-        cause: main.cause,
-        risks: main.risks,
-        principle: main.principle,
-        foods: main.foods
-      };
-      
-      // 异步保存，不阻塞界面显示
-      window.saveUserResult(testResult).then(success => {
-        if (success) {
-          console.log('测试结果已保存到云端');
-        }
-      });
-    }
-
+    // 先显示结果，再异步保存
     showSection('result');
     renderProducts(mainId, adjustmentLevel);
     
@@ -436,6 +411,38 @@
         foods: main.foods,
         dietRecommend: main.dietRecommend
       });
+    }
+    
+    // 异步保存测试结果到 Supabase（不阻塞界面）
+    if (window.saveUserResult) {
+      const testResult = {
+        timestamp: new Date().toISOString(),
+        constitution: main.name,
+        constitutionId: mainId,
+        description: main.desc,
+        scores: scores,
+        adjustmentLevel: adjustmentLevel,
+        secondaryConstitutions: secondaryIds.map(id => DATA[id].name),
+        dietRecommend: main.dietRecommend,
+        features: main.features,
+        cause: main.cause,
+        risks: main.risks,
+        principle: main.principle,
+        foods: main.foods
+      };
+      
+      // 使用 setTimeout 确保完全异步，不阻塞界面
+      setTimeout(() => {
+        window.saveUserResult(testResult).then(success => {
+          if (success) {
+            console.log('✅ 测试结果已保存到云端');
+          } else {
+            console.log('ℹ️ 测试结果未保存（可能未登录或网络问题）');
+          }
+        }).catch(err => {
+          console.error('保存测试结果时出错:', err);
+        });
+      }, 100);
     }
     
     // 不自动滚动，让用户停留在测试结果页面慢慢查看
