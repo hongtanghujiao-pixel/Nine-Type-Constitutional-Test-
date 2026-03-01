@@ -198,12 +198,454 @@
       transform: scale(1);
     }
   }
+  
+  /* 页面装饰 - 简洁现代风格 */
+  body {
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* 装饰容器 - 跟随页面滚动 */
+  .decorative-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
+  }
+  
+  main {
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  /* 大型渐变背景装饰 - 带变形效果 */
+  .decorative-pattern-left {
+    position: absolute;
+    top: 10%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.08) 0%, rgba(166, 124, 82, 0.03) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: morph-blob-1 20s ease-in-out infinite;
+  }
+  
+  .decorative-pattern-right {
+    position: absolute;
+    top: 30%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(196, 167, 125, 0.1) 0%, rgba(196, 167, 125, 0.04) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: morph-blob-2 25s ease-in-out infinite;
+  }
+  
+  .decorative-top-accent {
+    position: absolute;
+    top: 50%;
+    left: -5%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(139, 154, 126, 0.06) 0%, rgba(139, 154, 126, 0.02) 50%, transparent 70%);
+    border-radius: 50%;
+    animation: morph-blob-3 18s ease-in-out infinite;
+  }
+  
+  .decorative-bottom-accent {
+    position: absolute;
+    top: 70%;
+    right: -8%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.07) 0%, rgba(166, 124, 82, 0.03) 50%, transparent 70%);
+    border-radius: 50%;
+    animation: morph-blob-4 22s ease-in-out infinite;
+  }
+  
+  /* 小型点缀装饰 - 带变形效果 */
+  .decorative-accent-1 {
+    position: absolute;
+    top: 20%;
+    right: 15%;
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(196, 167, 125, 0.28), rgba(166, 124, 82, 0.18));
+    border-radius: 50%;
+    animation: morph-small-1 8s ease-in-out infinite;
+  }
+  
+  .decorative-accent-2 {
+    position: absolute;
+    top: 45%;
+    left: 12%;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(225deg, rgba(139, 154, 126, 0.25), rgba(122, 155, 130, 0.15));
+    border-radius: 50%;
+    animation: morph-small-2 10s ease-in-out infinite 2s;
+  }
+  
+  .decorative-accent-3 {
+    position: absolute;
+    top: 85%;
+    right: 18%;
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(45deg, rgba(166, 124, 82, 0.22), rgba(196, 167, 125, 0.12));
+    border-radius: 50%;
+    animation: morph-small-3 12s ease-in-out infinite 4s;
+  }
+  
+  /* 左侧圆点装饰 */
+  .decorative-dot-left-1 {
+    position: absolute;
+    top: 12%;
+    left: 8%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.25), rgba(166, 124, 82, 0.08));
+    border-radius: 50%;
+    animation: morph-dot-1 7s ease-in-out infinite;
+  }
+  
+  .decorative-dot-left-2 {
+    position: absolute;
+    top: 28%;
+    left: 5%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(139, 154, 126, 0.22), rgba(139, 154, 126, 0.07));
+    border-radius: 50%;
+    animation: morph-dot-2 9s ease-in-out infinite 1s;
+  }
+  
+  .decorative-dot-left-3 {
+    position: absolute;
+    top: 52%;
+    left: 6%;
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle, rgba(196, 167, 125, 0.24), rgba(196, 167, 125, 0.08));
+    border-radius: 50%;
+    animation: morph-dot-3 8s ease-in-out infinite 2s;
+  }
+  
+  .decorative-dot-left-4 {
+    position: absolute;
+    top: 68%;
+    left: 7%;
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.23), rgba(166, 124, 82, 0.07));
+    border-radius: 50%;
+    animation: morph-dot-1 10s ease-in-out infinite 3s;
+  }
+  
+  .decorative-dot-left-5 {
+    position: absolute;
+    top: 82%;
+    left: 9%;
+    width: 55px;
+    height: 55px;
+    background: radial-gradient(circle, rgba(139, 154, 126, 0.2), rgba(139, 154, 126, 0.06));
+    border-radius: 50%;
+    animation: morph-dot-2 7.5s ease-in-out infinite 4s;
+  }
+  
+  /* 体质测试区域左侧圆点 */
+  .decorative-dot-test {
+    position: absolute;
+    top: 35%;
+    left: 10%;
+    width: 85px;
+    height: 85px;
+    background: radial-gradient(circle, rgba(196, 167, 125, 0.26), rgba(196, 167, 125, 0.09));
+    border-radius: 50%;
+    animation: morph-dot-3 8.5s ease-in-out infinite 1.5s;
+  }
+  
+  /* 右侧圆点装饰 */
+  .decorative-dot-right-1 {
+    position: absolute;
+    top: 8%;
+    right: 7%;
+    width: 75px;
+    height: 75px;
+    background: radial-gradient(circle, rgba(196, 167, 125, 0.27), rgba(196, 167, 125, 0.09));
+    border-radius: 50%;
+    animation: morph-dot-3 8.5s ease-in-out infinite 0.5s;
+  }
+  
+  .decorative-dot-right-2 {
+    position: absolute;
+    top: 25%;
+    right: 9%;
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.24), rgba(166, 124, 82, 0.08));
+    border-radius: 50%;
+    animation: morph-dot-1 9.5s ease-in-out infinite 1.5s;
+  }
+  
+  .decorative-dot-right-3 {
+    position: absolute;
+    top: 42%;
+    right: 6%;
+    width: 70px;
+    height: 70px;
+    background: radial-gradient(circle, rgba(139, 154, 126, 0.22), rgba(139, 154, 126, 0.07));
+    border-radius: 50%;
+    animation: morph-dot-2 8s ease-in-out infinite 2.5s;
+  }
+  
+  .decorative-dot-right-4 {
+    position: absolute;
+    top: 58%;
+    right: 8%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(196, 167, 125, 0.25), rgba(196, 167, 125, 0.08));
+    border-radius: 50%;
+    animation: morph-dot-3 7s ease-in-out infinite 3.5s;
+  }
+  
+  .decorative-dot-right-5 {
+    position: absolute;
+    top: 72%;
+    right: 10%;
+    width: 55px;
+    height: 55px;
+    background: radial-gradient(circle, rgba(166, 124, 82, 0.21), rgba(166, 124, 82, 0.07));
+    border-radius: 50%;
+    animation: morph-dot-1 9s ease-in-out infinite 4.5s;
+  }
+  
+  .decorative-dot-right-6 {
+    position: absolute;
+    top: 92%;
+    right: 7%;
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle, rgba(139, 154, 126, 0.24), rgba(139, 154, 126, 0.08));
+    border-radius: 50%;
+    animation: morph-dot-2 8.5s ease-in-out infinite 5s;
+  }
+  
+  /* 变形动画 - 大型装饰 */
+  @keyframes morph-blob-1 {
+    0%, 100% { 
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+      transform: translate(20px, 30px) rotate(90deg);
+    }
+    50% { 
+      border-radius: 50% 50% 30% 70% / 30% 60% 70% 40%;
+      transform: translate(30px, 40px) rotate(180deg);
+    }
+    75% {
+      border-radius: 70% 30% 50% 50% / 40% 50% 60% 50%;
+      transform: translate(15px, 25px) rotate(270deg);
+    }
+  }
+  
+  @keyframes morph-blob-2 {
+    0%, 100% { 
+      border-radius: 40% 60% 60% 40% / 40% 60% 40% 60%;
+      transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+      border-radius: 60% 40% 50% 50% / 50% 50% 60% 40%;
+      transform: translate(-25px, -20px) rotate(-90deg);
+    }
+    50% { 
+      border-radius: 50% 50% 40% 60% / 60% 40% 50% 50%;
+      transform: translate(-30px, -40px) rotate(-180deg);
+    }
+    75% {
+      border-radius: 30% 70% 60% 40% / 50% 60% 40% 60%;
+      transform: translate(-20px, -30px) rotate(-270deg);
+    }
+  }
+  
+  @keyframes morph-blob-3 {
+    0%, 100% { 
+      border-radius: 55% 45% 45% 55% / 55% 45% 55% 45%;
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      border-radius: 45% 55% 60% 40% / 40% 60% 45% 55%;
+      transform: translate(15px, 20px) scale(1.05);
+    }
+    66% { 
+      border-radius: 60% 40% 45% 55% / 55% 45% 60% 40%;
+      transform: translate(25px, 15px) scale(0.95);
+    }
+  }
+  
+  @keyframes morph-blob-4 {
+    0%, 100% { 
+      border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      border-radius: 40% 60% 55% 45% / 60% 40% 55% 45%;
+      transform: translate(-20px, -15px) scale(1.08);
+    }
+    66% { 
+      border-radius: 65% 35% 50% 50% / 45% 55% 40% 60%;
+      transform: translate(-15px, -25px) scale(0.92);
+    }
+  }
+  
+  /* 变形动画 - 小型装饰 */
+  @keyframes morph-small-1 {
+    0%, 100% { 
+      border-radius: 60% 40% 40% 60% / 60% 40% 60% 40%;
+      transform: scale(1) rotate(0deg);
+      opacity: 0.6;
+    }
+    50% { 
+      border-radius: 40% 60% 60% 40% / 40% 60% 40% 60%;
+      transform: scale(1.2) rotate(180deg);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes morph-small-2 {
+    0%, 100% { 
+      border-radius: 50% 50% 30% 70% / 50% 50% 70% 30%;
+      transform: scale(1) rotate(0deg);
+      opacity: 0.6;
+    }
+    50% { 
+      border-radius: 30% 70% 50% 50% / 70% 30% 50% 50%;
+      transform: scale(1.15) rotate(-180deg);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes morph-small-3 {
+    0%, 100% { 
+      border-radius: 45% 55% 55% 45% / 55% 45% 45% 55%;
+      transform: scale(1) rotate(0deg);
+      opacity: 0.6;
+    }
+    50% { 
+      border-radius: 55% 45% 45% 55% / 45% 55% 55% 45%;
+      transform: scale(1.18) rotate(180deg);
+      opacity: 1;
+    }
+  }
+  
+  /* 圆点变形动画 */
+  @keyframes morph-dot-1 {
+    0%, 100% { 
+      border-radius: 50%;
+      transform: scale(1) translateY(0);
+      opacity: 0.5;
+    }
+    25% {
+      border-radius: 45% 55% 50% 50% / 50% 50% 55% 45%;
+      transform: scale(1.1) translateY(-10px);
+      opacity: 0.7;
+    }
+    50% { 
+      border-radius: 55% 45% 45% 55% / 45% 55% 45% 55%;
+      transform: scale(1.15) translateY(-15px);
+      opacity: 0.9;
+    }
+    75% {
+      border-radius: 50% 50% 55% 45% / 55% 45% 50% 50%;
+      transform: scale(1.08) translateY(-8px);
+      opacity: 0.7;
+    }
+  }
+  
+  @keyframes morph-dot-2 {
+    0%, 100% { 
+      border-radius: 50%;
+      transform: scale(1) translateY(0);
+      opacity: 0.5;
+    }
+    33% {
+      border-radius: 60% 40% 50% 50% / 50% 50% 40% 60%;
+      transform: scale(1.12) translateY(-12px);
+      opacity: 0.8;
+    }
+    66% { 
+      border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+      transform: scale(1.05) translateY(-6px);
+      opacity: 0.6;
+    }
+  }
+  
+  @keyframes morph-dot-3 {
+    0%, 100% { 
+      border-radius: 50%;
+      transform: scale(1) translateY(0);
+      opacity: 0.5;
+    }
+    40% {
+      border-radius: 48% 52% 55% 45% / 52% 48% 45% 55%;
+      transform: scale(1.14) translateY(-14px);
+      opacity: 0.85;
+    }
+    80% { 
+      border-radius: 52% 48% 45% 55% / 48% 52% 55% 45%;
+      transform: scale(1.06) translateY(-7px);
+      opacity: 0.65;
+    }
+  }
+  
+  /* 响应式：移动端简化装饰 */
+  @media (max-width: 768px) {
+    .decorative-pattern-left,
+    .decorative-pattern-right,
+    .decorative-top-accent,
+    .decorative-bottom-accent,
+    .decorative-accent-1,
+    .decorative-accent-2,
+    .decorative-accent-3,
+    .decorative-dot-left-1,
+    .decorative-dot-left-2,
+    .decorative-dot-left-3,
+    .decorative-dot-left-4,
+    .decorative-dot-left-5,
+    .decorative-dot-test,
+    .decorative-dot-right-1,
+    .decorative-dot-right-2,
+    .decorative-dot-right-3,
+    .decorative-dot-right-4,
+    .decorative-dot-right-5,
+    .decorative-dot-right-6 {
+      display: none;
+    }
+  }
+  
+  /* 确保主内容区域有足够的 z-index */
+  header, main, footer {
+    position: relative;
+    z-index: 10;
+  }
+  
+  main {
+    position: relative;
+  }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="antialiased">
   <!-- A. 顶部导航 -->
-  <header class="fixed top-0 left-0 right-0 z-50 bg-paper/95 backdrop-blur border-b border-stone-200/80">
+  <header class="fixed top-0 left-0 right-0 z-50 bg-paper/95 backdrop-blur border-b border-stone-200/80" style="position: relative; z-index: 50;">
     <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
       <a href="#" class="flex items-center gap-2 flex-shrink-0">
         <span class="w-9 h-9 rounded-full bg-indigo/10 flex items-center justify-center text-indigo font-serif text-lg">测</span>
@@ -297,6 +739,33 @@
   </header>
 
   <main class="pt-16">
+    <!-- 装饰容器 - 跟随页面滚动 -->
+    <div class="decorative-container">
+      <div class="decorative-pattern-left"></div>
+      <div class="decorative-pattern-right"></div>
+      <div class="decorative-top-accent"></div>
+      <div class="decorative-bottom-accent"></div>
+      <div class="decorative-accent-1"></div>
+      <div class="decorative-accent-2"></div>
+      <div class="decorative-accent-3"></div>
+      
+      <!-- 左侧圆点 -->
+      <div class="decorative-dot-left-1"></div>
+      <div class="decorative-dot-left-2"></div>
+      <div class="decorative-dot-left-3"></div>
+      <div class="decorative-dot-left-4"></div>
+      <div class="decorative-dot-left-5"></div>
+      <div class="decorative-dot-test"></div>
+      
+      <!-- 右侧圆点 -->
+      <div class="decorative-dot-right-1"></div>
+      <div class="decorative-dot-right-2"></div>
+      <div class="decorative-dot-right-3"></div>
+      <div class="decorative-dot-right-4"></div>
+      <div class="decorative-dot-right-5"></div>
+      <div class="decorative-dot-right-6"></div>
+    </div>
+    
     <!-- B. 视觉轮播区 -->
     <section id="home" class="section relative overflow-hidden ink-blot">
       <div class="max-w-6xl mx-auto px-4 py-12">
