@@ -126,15 +126,42 @@ function updateUserProfile() {
     const genderSelect = document.getElementById('userGender');
     const tasteSelect = document.getElementById('userTastePreference');
     
+    const oldAge = userProfile.age;
+    const oldGender = userProfile.gender;
+    
     userProfile = {
         age: ageInput ? ageInput.value : '',
         gender: genderSelect ? genderSelect.value : '',
         tastePreference: tasteSelect ? tasteSelect.value : ''
     };
+    
+    // 如果用户刚填写了年龄和性别，且之前没有填写，自动触发生成方案
+    if (currentConstitution && currentConstitution.type) {
+        const age = parseInt(userProfile.age);
+        const gender = userProfile.gender;
+        
+        // 之前没有完整信息，现在有了，自动生成
+        if ((!oldAge || !oldGender) && age && gender && age >= 1 && age <= 120) {
+            // 延迟一下，避免频繁触发
+            setTimeout(() => {
+                tryGetPersonalizedPlan(currentConstitution.type);
+            }, 500);
+        }
+    }
+}
+
+// 手动触发生成个性化方案（供按钮调用）
+window.generatePersonalizedPlan = async function() {
+    if (!currentConstitution || !currentConstitution.type) {
+        addMessageToChat('ai', '请先选择您的体质类型，或者<a href="#test" class="text-ochre hover:underline">完成体质测试</a>。');
+        return;
+    }
+
+    await tryGetPersonalizedPlan(currentConstitution.type);
 }
 
 // 初始化AI模块（在显示测试结果时调用）
-window.initAIConsultation = function(constitutionData) {
+window.initAIConsultation = async function(constitutionData) {
     currentConstitution = constitutionData;
     
     // 重置对话历史
@@ -155,6 +182,202 @@ window.initAIConsultation = function(constitutionData) {
             chatBox.appendChild(welcomeMsg);
         }
     }
+
+    // 自动获取个性化方案（如果用户填写了年龄和性别）
+    await tryGetPersonalizedPlan(constitutionData.type);
+}
+
+// 尝试获取个性化方案
+async function tryGetPersonalizedPlan(constitutionType) {
+    // 检查服务是否可用
+    if (!window.tcmService || !window.tcmService.apiKey) {
+        console.log('ℹ️ DeepSeek API 未配置，跳过个性化方案生成');
+        return;
+    }
+
+    // 获取用户信息
+    updateUserProfile();
+    const age = parseInt(userProfile.age);
+    const gender = userProfile.gender;
+
+    // 如果用户没有填写年龄和性别，不自动调用
+    if (!age || !gender) {
+        console.log('ℹ️ 用户未填写年龄或性别，跳过个性化方案生成');
+        // 添加提示消息
+        const chatBox = document.getElementById('aiChatBox');
+        if (chatBox) {
+            addMessageToChat('ai', '💡 <strong>提示：</strong>填写您的年龄和性别后，我可以为您生成更精准的个性化养生方案！');
+        }
+        return;
+    }
+
+    // 验证年龄范围
+    if (age < 1 || age > 120) {
+        console.warn('⚠️ 年龄超出有效范围');
+        return;
+    }
+
+    try {
+        console.log('🤖 正在生成个性化养生方案...');
+        
+        // 显示加载提示
+        const loadingId = addMessageToChat('ai', '<span class="ai-typing">正在为您生成个性化养生方案，请稍候...</span>');
+
+        const startTime = Date.now();
+        
+        // 调用服务获取个性化方案
+        const plan = await window.tcmService.getPersonalizedPlan(age, gender, constitutionType);
+        
+        const duration = Date.now() - startTime;
+        console.log(`✅ 个性化方案生成完成，耗时：${duration}ms`);
+
+        // 移除加载提示
+        removeMessage(loadingId);
+
+        // 显示个性化方案
+        displayPersonalizedPlan(plan, duration);
+
+    } catch (error) {
+        console.error('❌ 生成个性化方案失败:', error);
+        
+        // 移除加载提示
+        const loadingMessages = document.querySelectorAll('.ai-typing');
+        loadingMessages.forEach(msg => {
+            const msgDiv = msg.closest('.flex');
+            if (msgDiv) msgDiv.remove();
+        });
+
+        // 显示错误提示
+        addMessageToChat('ai', `抱歉，生成个性化方案时出现错误：${error.message}。您可以继续通过提问的方式获取建议。`);
+    }
+}
+
+// 显示个性化方案
+function displayPersonalizedPlan(plan, duration) {
+    const chatBox = document.getElementById('aiChatBox');
+    if (!chatBox) return;
+
+    // 构建方案HTML
+    let planHtml = `
+        <div class="bg-gradient-to-br from-ochre/10 to-warm/10 rounded-xl p-4 border border-ochre/20 mb-3">
+            <div class="flex items-center gap-2 mb-3">
+                <span class="text-lg">✨</span>
+                <h4 class="font-medium text-ink">您的个性化养生方案</h4>
+                <span class="text-xs text-indigo/60 ml-auto">生成耗时：${duration}ms</span>
+            </div>
+            
+            <div class="space-y-4 text-sm">
+                <!-- 体质分析 -->
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>📊</span> 体质分析
+                    </h5>
+                    <p class="text-indigo/90 leading-relaxed">${plan.analysis || '—'}</p>
+                </div>
+
+                <!-- 饮食建议 -->
+                ${plan.dietaryRecommendations && plan.dietaryRecommendations.length > 0 ? `
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>🍲</span> 饮食建议
+                    </h5>
+                    <ul class="space-y-1 text-indigo/90">
+                        ${plan.dietaryRecommendations.map(rec => `<li class="flex items-start gap-2"><span class="text-ochre">•</span><span>${rec}</span></li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                <!-- 生活方式建议 -->
+                ${plan.lifestyleRecommendations && plan.lifestyleRecommendations.length > 0 ? `
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>🏠</span> 生活方式建议
+                    </h5>
+                    <ul class="space-y-1 text-indigo/90">
+                        ${plan.lifestyleRecommendations.map(rec => `<li class="flex items-start gap-2"><span class="text-ochre">•</span><span>${rec}</span></li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                <!-- 运动建议 -->
+                ${plan.exerciseRecommendations && plan.exerciseRecommendations.length > 0 ? `
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>🏃</span> 运动建议
+                    </h5>
+                    <ul class="space-y-1 text-indigo/90">
+                        ${plan.exerciseRecommendations.map(rec => `<li class="flex items-start gap-2"><span class="text-ochre">•</span><span>${rec}</span></li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                <!-- 穴位推荐 -->
+                ${plan.acupointRecommendations && plan.acupointRecommendations.length > 0 ? `
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>👆</span> 穴位推荐
+                    </h5>
+                    <div class="space-y-2">
+                        ${plan.acupointRecommendations.map(acupoint => `
+                            <div class="bg-white/60 rounded-lg p-3 border border-ochre/10">
+                                <div class="font-medium text-ink mb-1">${acupoint.name || '—'}</div>
+                                <div class="text-xs text-indigo/80 space-y-1">
+                                    ${acupoint.location ? `<div><strong>位置：</strong>${acupoint.location}</div>` : ''}
+                                    ${acupoint.function ? `<div><strong>功效：</strong>${acupoint.function}</div>` : ''}
+                                    ${acupoint.method ? `<div><strong>方法：</strong>${acupoint.method}</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- 四季调养 -->
+                ${plan.seasonalAdjustments ? `
+                <div>
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>🌸</span> 四季调养要点
+                    </h5>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        ${plan.seasonalAdjustments.spring ? `<div class="bg-white/60 rounded p-2"><strong class="text-ochre">春：</strong>${plan.seasonalAdjustments.spring}</div>` : ''}
+                        ${plan.seasonalAdjustments.summer ? `<div class="bg-white/60 rounded p-2"><strong class="text-ochre">夏：</strong>${plan.seasonalAdjustments.summer}</div>` : ''}
+                        ${plan.seasonalAdjustments.autumn ? `<div class="bg-white/60 rounded p-2"><strong class="text-ochre">秋：</strong>${plan.seasonalAdjustments.autumn}</div>` : ''}
+                        ${plan.seasonalAdjustments.winter ? `<div class="bg-white/60 rounded p-2"><strong class="text-ochre">冬：</strong>${plan.seasonalAdjustments.winter}</div>` : ''}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- 年龄专项建议 -->
+                ${plan.ageSpecificAdvice ? `
+                <div class="bg-ochre/5 rounded-lg p-3 border border-ochre/20">
+                    <h5 class="font-medium text-ink mb-2 flex items-center gap-2">
+                        <span>🎯</span> 年龄专项建议
+                    </h5>
+                    <p class="text-indigo/90 text-sm">${plan.ageSpecificAdvice}</p>
+                </div>
+                ` : ''}
+
+                <!-- 注意事项 -->
+                ${plan.warnings && plan.warnings.length > 0 ? `
+                <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                    <h5 class="font-medium text-red-800 mb-2 flex items-center gap-2">
+                        <span>⚠️</span> 注意事项
+                    </h5>
+                    <ul class="space-y-1 text-red-700 text-sm">
+                        ${plan.warnings.map(warning => `<li class="flex items-start gap-2"><span>•</span><span>${warning}</span></li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-ochre/20 text-xs text-indigo/60 text-center">
+                💡 以上方案基于您的年龄、性别和体质类型生成，仅供参考。具体调理请咨询专业中医师。
+            </div>
+        </div>
+    `;
+
+    // 添加到聊天框
+    addMessageToChat('ai', planHtml);
 }
 
 // 调用真实AI API

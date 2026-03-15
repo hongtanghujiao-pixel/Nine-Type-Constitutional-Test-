@@ -1040,13 +1040,15 @@
               <div>
                 <label class="block text-xs text-indigo/80 mb-2">年龄</label>
                 <input type="number" id="userAge" placeholder="请输入年龄" min="1" max="120"
-                       class="w-full px-3 py-2 rounded-lg border border-stone-200 bg-white text-sm text-ink outline-none focus:border-ochre transition-colors">
+                       class="w-full px-3 py-2 rounded-lg border border-stone-200 bg-white text-sm text-ink outline-none focus:border-ochre transition-colors"
+                       onchange="updateUserProfile()">
               </div>
               
               <!-- 性别 -->
               <div>
                 <label class="block text-xs text-indigo/80 mb-2">性别</label>
-                <select id="userGender" class="w-full px-3 py-2 rounded-lg border border-stone-200 bg-white text-sm text-ink outline-none focus:border-ochre transition-colors">
+                <select id="userGender" class="w-full px-3 py-2 rounded-lg border border-stone-200 bg-white text-sm text-ink outline-none focus:border-ochre transition-colors"
+                        onchange="updateUserProfile()">
                   <option value="">请选择</option>
                   <option value="male">男</option>
                   <option value="female">女</option>
@@ -1067,6 +1069,13 @@
               </div>
             </div>
             <p class="text-xs text-indigo/60 mt-3">💡 填写个人信息后，AI会根据您的年龄、性别和口味偏好提供更个性化的建议</p>
+            <div class="mt-3 flex gap-2">
+              <button onclick="generatePersonalizedPlan()" class="px-4 py-2 rounded-lg bg-ochre text-white text-sm font-medium hover:bg-ochre/90 transition shadow-md flex items-center gap-2">
+                <span>✨</span>
+                <span>生成个性化方案</span>
+              </button>
+              <p class="text-xs text-indigo/60 flex items-center">填写年龄和性别后点击生成</p>
+            </div>
           </div>
           
           <!-- 体质选择 -->
@@ -1273,9 +1282,17 @@
     </footer>
   </main>
 
+  <!-- DeepSeek API 配置 -->
+  <script>
+    // 配置 DeepSeek API Key
+    // 注意：在生产环境中，建议通过后端代理 API 调用，避免在前端暴露 API Key
+    window.DEEPSEEK_API_KEY = 'sk-d6d197ca5eec46d9980f6a4686fb1b50';
+  </script>
+  
   <script src="data.js"></script>
   <script src="auth.js"></script>
   <script src="cart.js"></script>
+  <script src="tcm-deepseek-service.js"></script>
   <script src="ai.js"></script>
   <script src="doctor-chat.js"></script>
   <script src="app.js"></script>

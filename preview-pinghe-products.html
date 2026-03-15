@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>平和质 · 产品推荐板块预览</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // 复用主站配色（从 index.html 精简拷贝）
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#f5f2eb',
+            mist: '#e8eae6',
+            ink: '#2c3e50',
+            indigo: '#4a5568',
+            ochre: '#a67c52',
+            warm: '#c4a77d',
+            accent: { pinghe: '#8b9b8b' },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --paper: #f5f2eb;
+      --mist: #e8eae6;
+      --ink: #2c3e50;
+      --indigo: #4a5568;
+      --ochre: #a67c52;
+    }
+    body { background: var(--paper); color: var(--ink); }
+  </style>
+</head>
+<body class="font-sans">
+  <header class="sticky top-0 z-10 bg-paper/90 backdrop-blur border-b border-stone-200/70">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-lg md:text-xl font-semibold text-ink">平和质 · 产品推荐板块预览</h1>
+        <p class="text-xs text-indigo/70">仅用于单独查看该模块的展示效果</p>
+      </div>
+      <a href="index.html#products" class="text-sm px-4 py-2 rounded-full border border-stone-300 hover:bg-mist/60 transition">
+        返回主站（定位到推荐区）
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- 单独预览：农产品智能推荐（平和质） -->
+    <section id="products" class="py-12 md:py-16 bg-mist/40">
+      <div class="max-w-6xl mx-auto px-4">
+        <h2 id="productsTitle" class="font-serif text-2xl md:text-3xl text-ink text-center mb-4">加载中…</h2>
+        <p id="productsSubtitle" class="text-indigo/90 text-center mb-2">根据体质推荐，仅供参考</p>
+
+        <div id="productsPrinciple" class="max-w-2xl mx-auto mb-8 p-4 rounded-xl bg-paper border border-stone-200/60 text-sm text-indigo/90">
+          <strong>原则：</strong><span id="principleText">—</span><br />
+          <strong>宜食：</strong><span id="foodsText">—</span>
+        </div>
+
+        <div id="productGrid" class="max-w-4xl mx-auto space-y-4">
+          <!-- 由 JS 动态填充 -->
+        </div>
+
+        <div id="recipeBlock" class="mt-12 max-w-2xl mx-auto p-6 rounded-2xl bg-paper border border-stone-200/60">
+          <h3 class="font-serif text-lg text-ink mb-2">推荐食谱</h3>
+          <p id="recipeName" class="font-medium text-ochre mb-2">—</p>
+          <p id="recipeDesc" class="text-sm text-indigo/90 mb-4">—</p>
+          <p class="text-xs text-stone-500">提示：本页仅预览“产品推荐模块”，不涉及登录/购物车/AI。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script>
+    (function () {
+      const DATA = window.CONSTITUTION_DATA;
+      const pinghe = DATA && DATA.pinghe;
+
+      const el = (id) => document.getElementById(id);
+
+      // 简单图片映射（只覆盖平和质相关 + 常见通用项）
+      const getProductImage = (name) => {
+        const map = {
+          // 平和质（甘肃特产）
+          '陇西黄芪': 'https://images.unsplash.com/photo-1587049352846-4a222e784acc?w=500&h=500&fit=crop',
+          '静宁苹果': 'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=500&h=500&fit=crop',
+          '庆阳小米': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&h=500&fit=crop',
+          // 平和质（通用产品）
+          '有机五谷杂粮': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&h=500&fit=crop',
+          '新鲜时令蔬菜': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500&h=500&fit=crop',
+          '农家土鸡蛋': 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?w=500&h=500&fit=crop',
+        };
+        return map[name] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500&h=500&fit=crop';
+      };
+
+      const escapeHtml = (s) => String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+      if (!pinghe) {
+        el('productsTitle').textContent = '数据未加载：找不到平和质（pinghe）配置';
+        el('productGrid').innerHTML = `
+          <div class="p-4 rounded-xl bg-paper border border-stone-200/60 text-sm text-indigo/90">
+            请确认同目录下存在 <code class="px-1 py-0.5 bg-mist/60 rounded">data.js</code>，并且页面通过浏览器正常加载脚本（部分浏览器用 file:// 打开会限制脚本加载，建议用本地静态服务器或直接双击打开看是否可加载）。
+          </div>
+        `;
+        return;
+      }
+
+      // 标题/原则/宜食/推荐食谱
+      el('productsTitle').textContent = `【${pinghe.name}】的专属食疗方案`;
+      el('principleText').textContent = pinghe.principle || '—';
+      el('foodsText').textContent = pinghe.foods || '—';
+      el('recipeName').textContent = pinghe.recipe?.name || '—';
+      el('recipeDesc').textContent = pinghe.recipe?.desc || '—';
+
+      // 渲染产品卡片
+      const grid = el('productGrid');
+      grid.innerHTML = (pinghe.products || []).map((p) => {
+        const tags = (p.tags || []).map((t) => `
+          <span class="text-xs px-2 py-0.5 rounded-full bg-ochre/15 text-ochre">${escapeHtml(t)}</span>
+        `).join('');
+
+        const advantages = (p.advantages || []).map((a) => `
+          <li class="text-sm text-indigo/80 leading-relaxed">- ${escapeHtml(a)}</li>
+        `).join('');
+
+        const ingredients = (p.recipe?.ingredients || []).map((i) => `<li class="text-sm text-indigo/80">- ${escapeHtml(i)}</li>`).join('');
+        const steps = (p.recipe?.steps || []).map((s, idx) => `<li class="text-sm text-indigo/80">${idx + 1}. ${escapeHtml(s)}</li>`).join('');
+
+        return `
+          <div class="bg-paper rounded-2xl border border-stone-200/60 overflow-hidden shadow-sm">
+            <div class="p-6">
+              <div class="flex flex-wrap gap-1 mb-4">${tags}</div>
+
+              <div class="grid md:grid-cols-2 gap-6 mb-4">
+                <div class="flex gap-4 items-start">
+                  <div class="flex-shrink-0 w-24 h-24 bg-mist/40 rounded-xl overflow-hidden">
+                    <img src="${getProductImage(p.common?.name)}" alt="${escapeHtml(p.common?.name)}" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-xs text-stone-500 mb-1">通用产品</p>
+                    <h4 class="font-medium text-ink mb-2">${escapeHtml(p.common?.name)}</h4>
+                    <p class="text-sm text-indigo/70">${escapeHtml(p.common?.desc)}</p>
+                  </div>
+                </div>
+
+                <div class="flex gap-4 items-start border-l-2 border-ochre/30 pl-6">
+                  <div class="flex-shrink-0 w-24 h-24 bg-ochre/10 rounded-xl overflow-hidden">
+                    <img src="${getProductImage(p.gansu?.name)}" alt="${escapeHtml(p.gansu?.name)}" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="text-xs text-ochre font-medium mb-1">甘肃特产 ⭐</p>
+                    <h4 class="font-medium text-ink mb-2">${escapeHtml(p.gansu?.name)}</h4>
+                    <p class="text-sm text-indigo/70">${escapeHtml(p.gansu?.desc)}</p>
+                  </div>
+                </div>
+              </div>
+
+              ${advantages ? `
+                <div class="mb-4">
+                  <p class="text-sm font-medium text-ink mb-2">产地与优势</p>
+                  <ul class="space-y-1">${advantages}</ul>
+                </div>
+              ` : ''}
+
+              ${p.recipe ? `
+                <details class="group mt-4 rounded-xl border border-stone-200/60 bg-mist/30 p-4">
+                  <summary class="cursor-pointer select-none flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-sm text-stone-600">推荐做法</p>
+                      <p class="font-medium text-ink">${escapeHtml(p.recipe?.name)}</p>
+                    </div>
+                    <span class="text-sm text-ochre group-open:rotate-180 transition">▾</span>
+                  </summary>
+                  <div class="mt-3 space-y-3">
+                    ${ingredients ? `
+                      <div>
+                        <p class="text-sm font-medium text-ink mb-1">食材</p>
+                        <ul class="space-y-1">${ingredients}</ul>
+                      </div>
+                    ` : ''}
+                    ${steps ? `
+                      <div>
+                        <p class="text-sm font-medium text-ink mb-1">步骤</p>
+                        <ol class="space-y-1">${steps}</ol>
+                      </div>
+                    ` : ''}
+                    ${p.recipe?.effect ? `
+                      <div class="text-sm text-indigo/80"><span class="font-medium text-ink">功效：</span>${escapeHtml(p.recipe.effect)}</div>
+                    ` : ''}
+                    ${p.recipe?.tips ? `
+                      <div class="text-sm text-indigo/80"><span class="font-medium text-ink">小贴士：</span>${escapeHtml(p.recipe.tips)}</div>
+                    ` : ''}
+                  </div>
+                </details>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    })();
+  </script>
+</body>
+</html>
+
+

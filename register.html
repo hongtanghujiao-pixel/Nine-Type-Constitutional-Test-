@@ -112,17 +112,18 @@
     <!-- 注册表单 -->
     <div class="bg-paper/80 backdrop-blur rounded-2xl shadow-xl border border-stone-200/60 p-8">
       <form id="registerForm" class="space-y-5">
-        <!-- 用户名 -->
+        <!-- 邮箱/用户名 -->
         <div>
-          <label for="username" class="block text-sm font-medium text-ink mb-2">用户名</label>
+          <label for="username" class="block text-sm font-medium text-ink mb-2">邮箱地址</label>
           <input 
-            type="text" 
+            type="email" 
             id="username" 
             name="username"
             class="input-field w-full px-4 py-3 rounded-xl border-2 border-stone-200 bg-white/80 text-ink outline-none"
-            placeholder="请输入用户名（3-20个字符）"
+            placeholder="请输入邮箱地址（例如：user@example.com）"
             required
           />
+          <p class="text-xs text-indigo/60 mt-1">也可以输入用户名（将自动添加测试域名）</p>
           <p class="text-xs text-red-500 mt-1 hidden" id="usernameError"></p>
         </div>
 
@@ -197,7 +198,198 @@
     </div>
   </div>
 
-  <script src="auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // 在 register.html 中直接初始化 Supabase 客户端
+    const supabaseUrl = 'https://yospqbbeykizesujlhiq.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlvc3BxYmJleWtpemVzdWpsaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5OTY1MTcsImV4cCI6MjA4NjU3MjUxN30.gE1rm3hpyV-_NVIPCch0hYG29OyxBGY2jzshVizPAZc'
+    
+    // 等待 Supabase 库加载完成
+    let supabaseClient;
+    if (typeof supabase !== 'undefined') {
+      const { createClient } = supabase;
+      supabaseClient = createClient(supabaseUrl, supabaseKey);
+      console.log('✅ Supabase 客户端已初始化（注册页面）');
+    } else {
+      console.error('❌ Supabase 库未加载！');
+    }
+    
+    // 注册页面表单处理
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      const successModal = document.getElementById('successModal');
+      
+      if (!registerForm) {
+        console.error('注册表单未找到');
+        return;
+      }
+      
+      if (!supabaseClient) {
+        console.error('Supabase 客户端未初始化');
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm mb-4';
+        errorMsg.textContent = '❌ 系统初始化失败，请刷新页面重试';
+        registerForm.parentElement.insertBefore(errorMsg, registerForm);
+        return;
+      }
+      
+      registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // 获取表单数据
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        // 清除之前的错误信息
+        document.getElementById('usernameError').classList.add('hidden');
+        document.getElementById('passwordError').classList.add('hidden');
+        document.getElementById('confirmPasswordError').classList.add('hidden');
+        
+        let hasError = false;
+        
+        // 验证邮箱/用户名
+        let email = username;
+        const isEmail = username.includes('@');
+        
+        if (!username) {
+          const errorEl = document.getElementById('usernameError');
+          errorEl.textContent = '请输入邮箱地址或用户名';
+          errorEl.classList.remove('hidden');
+          hasError = true;
+        } else if (isEmail) {
+          // 验证邮箱格式
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(username)) {
+            const errorEl = document.getElementById('usernameError');
+            errorEl.textContent = '请输入有效的邮箱地址';
+            errorEl.classList.remove('hidden');
+            hasError = true;
+          }
+        } else {
+          // 验证用户名长度
+          if (username.length < 3 || username.length > 20) {
+            const errorEl = document.getElementById('usernameError');
+            errorEl.textContent = '用户名长度应在3-20个字符之间';
+            errorEl.classList.remove('hidden');
+            hasError = true;
+          } else {
+            // 将用户名转换为邮箱格式
+            email = username + '@jiuzhi.test';
+          }
+        }
+        
+        // 验证密码
+        if (!password || password.length < 6) {
+          const errorEl = document.getElementById('passwordError');
+          errorEl.textContent = '密码至少需要6个字符';
+          errorEl.classList.remove('hidden');
+          hasError = true;
+        }
+        
+        // 验证确认密码
+        if (password !== confirmPassword) {
+          const errorEl = document.getElementById('confirmPasswordError');
+          errorEl.textContent = '两次输入的密码不一致';
+          errorEl.classList.remove('hidden');
+          hasError = true;
+        }
+        
+        if (hasError) {
+          return;
+        }
+        
+        // 禁用提交按钮
+        const submitBtn = registerForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = '注册中...';
+        
+        try {
+          console.log('📤 开始注册，邮箱:', email);
+          
+          // 调用 Supabase 注册
+          const { data, error } = await supabaseClient.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              emailRedirectTo: window.location.origin,
+              data: {
+                username: username,
+                display_name: username
+              }
+            }
+          });
+          
+          if (error) {
+            console.error('❌ 注册错误:', error);
+            
+            let errorMsg = error.message;
+            if (error.message.includes('User already registered')) {
+              errorMsg = '该邮箱已被注册，请直接登录';
+            } else if (error.message.includes('Invalid email')) {
+              errorMsg = '邮箱格式无效';
+            } else if (error.message.includes('Password should be at least')) {
+              errorMsg = '密码长度不足';
+            } else if (error.message.includes('Signups not allowed')) {
+              errorMsg = '当前不允许注册，请联系管理员';
+            } else if (error.message.includes('Email rate limit exceeded')) {
+              errorMsg = '发送邮件过于频繁，请稍后再试';
+            } else if (error.message.includes('Failed to fetch')) {
+              errorMsg = '网络请求失败，请检查网络连接或稍后重试';
+            }
+            
+            // 显示错误提示（使用更友好的方式）
+            const errorDiv = document.getElementById('usernameError');
+            errorDiv.textContent = errorMsg;
+            errorDiv.classList.remove('hidden');
+            errorDiv.classList.add('text-red-600', 'font-medium');
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          } else {
+            console.log('✅ 注册成功:', data);
+            
+            // 检查是否需要邮箱验证
+            if (data.user && !data.session) {
+              // 需要邮箱验证
+              const message = isEmail 
+                ? '注册成功！请查收邮箱验证链接以完成注册。\n\n如果使用测试邮箱（@jiuzhi.test），请检查 Supabase 控制台的用户列表。'
+                : '注册成功！由于使用了测试邮箱，请检查 Supabase 控制台的用户列表。';
+              alert(message);
+              // 显示成功弹窗
+              successModal.classList.remove('hidden');
+            } else if (data.user && data.session) {
+              // 直接登录成功
+              successModal.classList.remove('hidden');
+              setTimeout(() => {
+                window.location.href = 'profile.html';
+              }, 2000);
+            } else {
+              // 显示成功弹窗
+              successModal.classList.remove('hidden');
+            }
+          }
+        } catch (err) {
+          console.error('❌ 注册异常:', err);
+          
+          let errorMsg = '注册失败，请稍后重试';
+          if (err.message) {
+            errorMsg += '：' + err.message;
+          }
+          
+          // 显示错误提示
+          const errorDiv = document.getElementById('usernameError');
+          errorDiv.textContent = errorMsg;
+          errorDiv.classList.remove('hidden');
+          errorDiv.classList.add('text-red-600', 'font-medium');
+          
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
+    });
+  </script>
 </body>
 </html>
 
